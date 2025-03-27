@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SavedInsights from './SavedInsights';
 
 const InsightCard = ({ insight }) => (
@@ -40,7 +40,7 @@ const AIInsightsPanel = ({ selectedText, insights, onClarify }) => {
   const [showExitPrompt, setShowExitPrompt] = useState(false);
   const [showDiagram, setShowDiagram] = useState(false);
   const [isDiagramLoading, setIsDiagramLoading] = useState(false);
-  const [editableText, setEditableText] = useState(selectedText || "");
+  const [editableText, setEditableText] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [isClarifying, setIsClarifying] = useState(false);
 
@@ -70,13 +70,35 @@ const AIInsightsPanel = ({ selectedText, insights, onClarify }) => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [savedItems]);
 
-  // Update editable text when new text is selected
+  // Update editableText when selectedText changes
   useEffect(() => {
-    if (selectedText && selectedText !== editableText) {
-      setEditableText(selectedText);
-      setIsEditing(false);
+    if (selectedText) {
+      if (isEditing) {
+        // In editing mode, append the new selection
+        setEditableText(prevText => {
+          return prevText ? prevText + '\n' + selectedText : selectedText;
+        });
+      } else {
+        // Not in editing mode, just show the current selection
+        setEditableText(selectedText);
+      }
     }
-  }, [selectedText]);
+  }, [selectedText, isEditing]);
+
+  // Initialize editor content when entering edit mode
+  const handleEditPDF = () => {
+    setIsEditing(true);
+  };
+
+  // Handle text selection from PDF
+  const handleTextSelection = (text) => {
+    if (!text) return;
+    if (isEditing) {
+      setEditableText(prevText => {
+        return prevText ? prevText + '\n' + text : text;
+      });
+    }
+  };
 
   const handleSaveInsight = () => {
     if (!selectedText || !insights[0]) return;
@@ -192,7 +214,7 @@ const AIInsightsPanel = ({ selectedText, insights, onClarify }) => {
                         <textarea
                           value={editableText}
                           onChange={(e) => setEditableText(e.target.value)}
-                          className="w-full min-h-[100px] p-3 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
+                          className="w-full min-h-[200px] p-3 text-sm border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
                           placeholder="Edit your selected text here..."
                         />
                         <div className="flex space-x-2">
@@ -218,8 +240,8 @@ const AIInsightsPanel = ({ selectedText, insights, onClarify }) => {
                           </button>
                           <button
                             onClick={() => {
-                              setEditableText(selectedText);
                               setIsEditing(false);
+                              setEditableText(selectedText || "");
                             }}
                             className="px-3 py-1.5 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-200"
                           >
@@ -229,9 +251,9 @@ const AIInsightsPanel = ({ selectedText, insights, onClarify }) => {
                       </div>
                     ) : (
                       <div className="relative group">
-                        <p className="text-sm text-gray-800 whitespace-pre-wrap">{editableText}</p>
+                        <p className="text-sm text-gray-800 whitespace-pre-wrap">{selectedText || editableText}</p>
                         <button
-                          onClick={() => setIsEditing(true)}
+                          onClick={handleEditPDF}
                           className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity
                             p-1 bg-white border border-gray-200 rounded-md shadow-sm
                             text-gray-600 hover:text-blue-500 hover:border-blue-500"

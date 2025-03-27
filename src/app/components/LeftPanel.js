@@ -1,40 +1,8 @@
+'use client';
+
 import React, { useState, useRef, useEffect } from 'react';
-import Quill from 'quill';
-import 'quill/dist/quill.snow.css';
+import dynamic from 'next/dynamic';
 import { toast } from 'react-hot-toast';
-
-// Import Quill modules and formats
-const Font = Quill.import('formats/font');
-const List = Quill.import('formats/list');
-const Bold = Quill.import('formats/bold');
-const Italic = Quill.import('formats/italic');
-const Strike = Quill.import('formats/strike');
-const Underline = Quill.import('formats/underline');
-const Header = Quill.import('formats/header');
-const Align = Quill.import('formats/align');
-
-// Add fonts
-Font.whitelist = [
-  'arial',
-  'comic-sans',
-  'courier-new',
-  'georgia',
-  'helvetica',
-  'lucida',
-  'times-new-roman'
-];
-
-// Register formats
-Quill.register({
-  'formats/font': Font,
-  'formats/list': List,
-  'formats/bold': Bold,
-  'formats/italic': Italic,
-  'formats/strike': Strike,
-  'formats/underline': Underline,
-  'formats/header': Header,
-  'formats/align': Align
-});
 
 const FileUploadButton = ({ icon, label, accept, onUpload, isDisabled, isLoading, tooltip }) => (
   <label className={`
@@ -147,151 +115,7 @@ const ControllerNav = ({ fileType, onPrevPage, onNextPage, onZoomIn, onZoomOut, 
   </div>
 );
 
-const EditorToolbar = ({ onSave, onNew, isPremium, onUpgrade }) => (
-  <div className="flex items-center justify-between p-2 bg-white border-b border-gray-200">
-    <div className="flex items-center space-x-2">
-      <button
-        onClick={onNew}
-        className="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
-      >
-        New PDF
-      </button>
-      <button
-        onClick={onSave}
-        className="px-3 py-1.5 text-sm bg-green-50 text-green-600 rounded-md hover:bg-green-100 transition-colors"
-      >
-        Save as PDF
-      </button>
-    </div>
-    {!isPremium && (
-      <button
-        onClick={onUpgrade}
-        className="px-3 py-1.5 text-sm bg-purple-50 text-purple-600 rounded-md hover:bg-purple-100 transition-colors"
-      >
-        Upgrade for More Features
-      </button>
-    )}
-  </div>
-);
 
-// Custom QuillEditor component
-const QuillEditor = React.forwardRef(({ value, onChange }, ref) => {
-  const editorRef = useRef(null);
-  const quillRef = useRef(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  useEffect(() => {
-    // Only initialize if not already initialized
-    if (editorRef.current && !isInitialized) {
-      // Remove any existing toolbars and editors
-      const existingToolbars = document.querySelectorAll('.ql-toolbar');
-      existingToolbars.forEach(toolbar => toolbar.remove());
-      
-      const existingEditors = document.querySelectorAll('.ql-editor');
-      existingEditors.forEach(editor => editor.remove());
-
-      quillRef.current = new Quill(editorRef.current, {
-        theme: 'snow',
-        modules: {
-          toolbar: [
-            [{ 'font': Font.whitelist }],
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'align': ['', 'center', 'right', 'justify'] }],
-            ['clean']
-          ],
-          clipboard: {
-            matchVisual: false
-          }
-        },
-        formats: ['font', 'header', 'bold', 'italic', 'underline', 'strike', 'align', 'list']
-      });
-
-      quillRef.current.root.style.height = '500px';
-      quillRef.current.root.style.fontSize = '14px';
-      quillRef.current.root.style.lineHeight = '1.5';
-      
-      quillRef.current.on('text-change', () => {
-        const content = quillRef.current.root.innerHTML;
-        onChange(content);
-      });
-
-      // Expose the Quill instance through ref
-      if (ref) {
-        ref.current = {
-          getQuill: () => quillRef.current
-        };
-      }
-
-      setIsInitialized(true);
-    }
-
-    // Cleanup function
-    return () => {
-      if (quillRef.current) {
-        // Clean up Quill instance and remove all toolbars
-        const toolbars = document.querySelectorAll('.ql-toolbar');
-        toolbars.forEach(toolbar => toolbar.remove());
-        
-        const editors = document.querySelectorAll('.ql-editor');
-        editors.forEach(editor => editor.remove());
-        
-        quillRef.current = null;
-        setIsInitialized(false);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (quillRef.current && value !== quillRef.current.root.innerHTML) {
-      quillRef.current.root.innerHTML = value;
-    }
-  }, [value]);
-
-  return (
-    <div className="quill-editor-container">
-      <div ref={editorRef} className="bg-white" />
-      <style jsx global>{`
-        .quill-editor-container .ql-editor {
-          min-height: 500px;
-          font-family: 'Arial', sans-serif;
-        }
-        .quill-editor-container .ql-toolbar {
-          border-top-left-radius: 4px;
-          border-top-right-radius: 4px;
-        }
-        .quill-editor-container .ql-container {
-          border-bottom-left-radius: 4px;
-          border-bottom-right-radius: 4px;
-        }
-        .quill-editor-container .ql-toolbar .ql-stroke {
-          stroke: #4b5563;
-        }
-        .quill-editor-container .ql-toolbar .ql-fill {
-          fill: #4b5563;
-        }
-        .quill-editor-container .ql-toolbar .ql-picker {
-          color: #4b5563;
-        }
-        .quill-editor-container .ql-snow.ql-toolbar button:hover,
-        .quill-editor-container .ql-snow .ql-toolbar button:hover {
-          color: #2563eb;
-        }
-        .quill-editor-container .ql-snow.ql-toolbar button:hover .ql-stroke,
-        .quill-editor-container .ql-snow .ql-toolbar button:hover .ql-stroke {
-          stroke: #2563eb;
-        }
-        .quill-editor-container .ql-snow.ql-toolbar button:hover .ql-fill,
-        .quill-editor-container .ql-snow .ql-toolbar button:hover .ql-fill {
-          fill: #2563eb;
-        }
-      `}</style>
-    </div>
-  );
-});
-
-QuillEditor.displayName = 'QuillEditor';
 
 const LeftPanel = ({
   onFileUpload,
@@ -315,16 +139,42 @@ const LeftPanel = ({
   const [editorContent, setEditorContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [selectedText, setSelectedText] = useState('');
+  const [pdfText, setPdfText] = useState('');
   const editorRef = useRef(null);
   const maxChars = 500;
   const isPremium = userRole === 'premium';
 
-  // Initialize editor content when file is uploaded
-  useEffect(() => {
-    if (currentFile && textContent) {
-      setEditorContent(textContent);
+  // Handle text content from PDF with proper formatting
+  const handlePdfTextContent = (text) => {
+    if (!text) return;
+    
+    try {
+      // Store the raw text with line breaks preserved
+      setPdfText(text);
+
+      // If we're in editing mode, update the editor content
+      if (isEditing && editorRef.current?.getQuill()) {
+        const quill = editorRef.current.getQuill();
+        
+        // Convert the text to HTML with proper paragraphs
+        const htmlContent = text
+          .split('\n')
+          .filter(line => line.trim())
+          .map(line => `<p>${line.trim()}</p>`)
+          .join('');
+
+        // Insert the formatted content into the editor
+        quill.setText(''); // Clear existing content
+        quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
+        
+        // Update the editor content state
+        setEditorContent(quill.root.innerHTML);
+      }
+    } catch (error) {
+      console.error('Error processing PDF text:', error);
+      toast.error('Error processing PDF text');
     }
-  }, [currentFile, textContent]);
+  };
 
   const handleFileUpload = (type) => async (event) => {
     const file = event.target.files?.[0];
@@ -427,14 +277,19 @@ const LeftPanel = ({
 
   const handleEditPDF = () => {
     setIsEditing(true);
-    // Set the editor content from textContent when Edit PDF is clicked
-    if (textContent) {
-      setEditorContent(textContent);
-      // If we have a Quill instance, update its content
-      const quill = editorRef.current?.getQuill();
-      if (quill) {
-        quill.root.innerHTML = textContent;
-      }
+    const quill = editorRef.current?.getQuill();
+    if (quill && pdfText) {
+      // Convert the stored text to HTML with proper paragraphs
+      const htmlContent = pdfText
+        .split('\n')
+        .filter(line => line.trim())
+        .map(line => `<p>${line.trim()}</p>`)
+        .join('');
+
+      // Set the content in the editor
+      quill.setText(''); // Clear existing content
+      quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
+      setEditorContent(quill.root.innerHTML);
     }
   };
 
@@ -535,17 +390,7 @@ const LeftPanel = ({
             </div>
 
             {/* Text Editor Area - Only shown when editing */}
-            {isEditing && (
-              <div className="border-b border-gray-200 bg-white">
-                <div className="p-4">
-                  <QuillEditor
-                    ref={editorRef}
-                    value={editorContent}
-                    onChange={setEditorContent}
-                  />
-                </div>
-              </div>
-            )}
+          
 
             {/* PDF Viewer */}
             <div className="flex-1">
@@ -553,14 +398,11 @@ const LeftPanel = ({
                 <div 
                   className="bg-white rounded-lg border border-gray-200 overflow-auto" 
                   style={{ height: 'calc(100vh - 300px)' }}
-                  onMouseUp={() => {
-                    const selectedText = window.getSelection()?.toString();
-                    if (selectedText) {
-                      handleTextSelection(selectedText);
-                    }
-                  }}
                 >
-                  {children}
+                  {React.cloneElement(children, {
+                    onTextContentChange: handlePdfTextContent,
+                    onTextSelect: handleTextSelection
+                  })}
                 </div>
               </div>
             </div>
