@@ -70,7 +70,7 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
       <div className="flex-1 flex items-center justify-center">
         <div className="max-w-md w-full px-6">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">PDF Highlighter</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">simplim</h1>
             <p className="text-gray-600">
               {isResetPassword
                 ? 'Reset your password'

@@ -1,7 +1,7 @@
 import './globals.css'
 
 export const metadata = {
-  title: 'PDF Highlighter',
+  title: 'simplim',
   description: 'A PDF viewer with highlighting capabilities',
 }
 

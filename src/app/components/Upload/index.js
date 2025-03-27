@@ -1,8 +1,10 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import FileUploadButton from '../FileUpload';
 
 const UploadArea = ({ handleFileUpload, uploadingFile, isPremium }) => {
+  const [uploadSuccess, setUploadSuccess] = useState(null);
+
   const onDrop = useCallback((acceptedFiles) => {
     if (acceptedFiles?.length > 0) {
       const file = acceptedFiles[0];
@@ -12,7 +14,13 @@ const UploadArea = ({ handleFileUpload, uploadingFile, isPremium }) => {
           files: [file]
         }
       };
-      handleFileUpload('pdf')(event);
+      handleFileUpload('pdf')(event)
+        .then(() => {
+          setUploadSuccess(file.name);
+          // Clear success message after 3 seconds
+          setTimeout(() => setUploadSuccess(null), 3000);
+        })
+        .catch(() => setUploadSuccess(null));
     }
   }, [handleFileUpload]);
 
@@ -57,6 +65,17 @@ const UploadArea = ({ handleFileUpload, uploadingFile, isPremium }) => {
         {uploadingFile === 'pdf' && (
           <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-md">
             <div className="text-xs text-blue-600">Uploading...</div>
+          </div>
+        )}
+
+        {uploadSuccess && (
+          <div className="absolute inset-0 bg-green-50/90 flex flex-col items-center justify-center rounded-md">
+            <div className="text-sm font-medium text-green-600 mb-1">
+              Uploaded successfully!
+            </div>
+            <div className="text-xs text-green-500">
+              {uploadSuccess}
+            </div>
           </div>
         )}
       </div>

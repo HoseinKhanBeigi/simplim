@@ -22,7 +22,7 @@ const Header = ({ user, onLogout, onUpgrade }) => {
         <div className="flex justify-between items-center h-14">
           {/* Logo */}
           <div className="flex items-center">
-            <h1 className="text-xl font-bold text-gray-900">PDF Highlighter</h1>
+            <h1 className="text-xl font-bold text-gray-900">simplim</h1>
           </div>
 
           {/* User Menu */}
