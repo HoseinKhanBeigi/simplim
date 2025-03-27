@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import Header from './Header';
-import AuthLayout from './AuthLayout';
-import LeftPanel from './LeftPanel';
-import AIInsightsPanel from './AIInsightsPanel';
-import FileViewer from './FileViewer';
+import Header from '../Header';
+import AuthLayout from '../AuthLayout';
+import LeftPanel from '../LeftPanel';
+import AIInsightsPanel from '../AIInsightsPanel';
+import FileViewer from '../FileViewer';
 import { Toaster, toast } from 'react-hot-toast';
 
 const AppLayout = () => {

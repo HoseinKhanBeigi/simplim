@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import SavedInsights from './SavedInsights';
+import SavedInsights from '../SavedInsights';
 
 const InsightCard = ({ insight }) => (
   <div
