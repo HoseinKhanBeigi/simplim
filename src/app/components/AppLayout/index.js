@@ -225,9 +225,9 @@ const AppLayout = () => {
     }
   };
 
-  if (!user) {
-    return <AuthLayout onLogin={handleLogin} onGuestMode={handleGuestMode} />;
-  }
+    // if (!user) {
+    //   return <AuthLayout onLogin={handleLogin} onGuestMode={handleGuestMode} />;
+    // }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -255,7 +255,7 @@ const AppLayout = () => {
             onNextPage={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
             onZoomIn={() => setScale(prev => Math.min(prev + 0.1, 2.0))}
             onZoomOut={() => setScale(prev => Math.max(prev - 0.1, 0.5))}
-            userRole={user.role}
+            userRole={'free'}
             onSavePDF={handleSavePDF}
             onNewPDF={handleNewPDF}
             onUpgrade={handleUpgrade}
@@ -285,10 +285,10 @@ const AppLayout = () => {
           <AIInsightsPanel
             selectedText={selectedText}
             insights={insights}
-            isGuest={user.isGuest}
-            userRole={user.role}
-            clarificationsUsed={user.clarificationsUsed}
-            clarificationsLimit={user.clarificationsLimit}
+            isGuest
+                        userRole={'free'}
+            clarificationsUsed={10}
+            clarificationsLimit={10}
             onClarify={handleClarification}
             onUpgrade={handleUpgrade}
           />
