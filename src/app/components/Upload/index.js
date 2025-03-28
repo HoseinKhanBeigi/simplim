@@ -1,6 +1,5 @@
 import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
-import FileUploadButton from '../FileUpload';
 
 const UploadArea = ({ handleFileUpload, uploadingFile, isPremium }) => {
   const [uploadSuccess, setUploadSuccess] = useState(null);

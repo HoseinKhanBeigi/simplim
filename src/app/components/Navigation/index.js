@@ -8,7 +8,8 @@ const ControllerNav = ({
   onNextPage,
   onZoomIn,
   onZoomOut,
-  onEdit
+  onEdit,
+  isEditing
 }) => {
   return (
     <nav className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -57,10 +58,14 @@ const ControllerNav = ({
             {/* Make Button */}
             <button
               onClick={onEdit}
-              className="px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors"
-              title="Edit PDF"
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                isEditing 
+                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                  : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+              }`}
+              title={isEditing ? "Hide Editor" : "Edit PDF"}
             >
-              Make
+              {isEditing ? "Done" : "Make"}
             </button>
           </div>
         </div>

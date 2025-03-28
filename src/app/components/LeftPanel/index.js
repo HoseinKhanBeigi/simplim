@@ -21,11 +21,12 @@ const LeftPanel = ({
   onNewPDF,
   onUpgrade,
   children,
+  isEditing,
+  onEdit,
 }) => {
   const [isManualInputVisible, setIsManualInputVisible] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(null);
   const [editorContent, setEditorContent] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
   const [selectedText, setSelectedText] = useState("");
   const [pdfText, setPdfText] = useState("");
   const editorRef = useRef(null);
@@ -214,13 +215,15 @@ const LeftPanel = ({
 
   return (
     <div className="flex flex-col h-screen overflow-hidden">
-      <div className="flex-none">
-        <UploadArea
-          handleFileUpload={handleFileUpload}
-          uploadingFile={uploadingFile}
-          isPremium={isPremium}
-        />
-      </div>
+      {!isEditing && (
+        <div className="flex-none">
+          <UploadArea
+            handleFileUpload={handleFileUpload}
+            uploadingFile={uploadingFile}
+            isPremium={isPremium}
+          />
+        </div>
+      )}
 
       {currentFile && (
         <div className="flex flex-col flex-1 overflow-hidden">
@@ -233,7 +236,8 @@ const LeftPanel = ({
               onNextPage={onNextPage}
               onZoomIn={onZoomIn}
               onZoomOut={onZoomOut}
-              onEdit={handleEditPDF}
+              onEdit={onEdit}
+              isEditing={isEditing}
             />
           </div>
 
@@ -244,6 +248,7 @@ const LeftPanel = ({
                 {React.cloneElement(children, {
                   onTextContentChange: handlePdfTextContent,
                   onTextSelect: handleTextSelection,
+                  isEditing: isEditing,
                 })}
               </div>
             </div>
