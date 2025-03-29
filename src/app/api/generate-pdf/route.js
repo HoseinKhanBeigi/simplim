@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+// import puppeteer from 'puppeteer';
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
@@ -33,55 +33,55 @@ export async function POST(req) {
     `;
 
     // Launch Puppeteer with system Chrome
-    browser = await puppeteer.launch({
-      headless: 'new',
-      channel: 'chrome',
-      executablePath: process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : undefined,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--disable-gpu',
-        '--window-size=1920x1080'
-      ]
-    });
+    // browser = await puppeteer.launch({
+    //   headless: 'new',
+    //   channel: 'chrome',
+    //   executablePath: process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : undefined,
+    //   args: [
+    //     '--no-sandbox',
+    //     '--disable-setuid-sandbox',
+    //     '--disable-dev-shm-usage',
+    //     '--disable-accelerated-2d-canvas',
+    //     '--disable-gpu',
+    //     '--window-size=1920x1080'
+    //   ]
+    // });
 
-    const page = await browser.newPage();
+    // const page = await browser.newPage();
     
     // Set viewport for consistent rendering
-    await page.setViewport({
-      width: 1920,
-      height: 1080,
-      deviceScaleFactor: 2
-    });
+    // await page.setViewport({
+    //   width: 1920,
+    //   height: 1080,
+    //   deviceScaleFactor: 2
+    // });
     
-    // Set content with timeout and wait for network idle
-    await page.setContent(fullHtml, { 
-      waitUntil: ['networkidle0', 'load', 'domcontentloaded'],
-      timeout: 30000
-    });
+    // // Set content with timeout and wait for network idle
+    // await page.setContent(fullHtml, { 
+    //   waitUntil: ['networkidle0', 'load', 'domcontentloaded'],
+    //   timeout: 30000
+    // });
     
-    // Wait for fonts and images to load
-    await page.evaluateHandle('document.fonts.ready');
+    // // Wait for fonts and images to load
+    // await page.evaluateHandle('document.fonts.ready');
     
-    // Generate PDF with A4 format
-    const pdf = await page.pdf({
-      format: 'A4',
-      margin: {
-        top: '40px',
-        right: '40px',
-        bottom: '40px',
-        left: '40px'
-      },
-      printBackground: true,
-      preferCSSPageSize: true,
-      scale: 0.8 // Slightly scale down to ensure content fits
-    });
+    // // Generate PDF with A4 format
+    // const pdf = await page.pdf({
+    //   format: 'A4',
+    //   margin: {
+    //     top: '40px',
+    //     right: '40px',
+    //     bottom: '40px',
+    //     left: '40px'
+    //   },
+    //   printBackground: true,
+    //   preferCSSPageSize: true,
+    //   scale: 0.8 // Slightly scale down to ensure content fits
+    // });
 
-    // Close browser
-    await browser.close();
-    browser = null;
+    // // Close browser
+    // await browser.close();
+    // browser = null;
 
     // Return the PDF as a response
     return new NextResponse(pdf, {
