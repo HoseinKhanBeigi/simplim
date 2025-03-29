@@ -6,12 +6,12 @@
  *
  */
 
-import type {JSX} from 'react';
+import type { JSX } from "react";
 
-import {$createLinkNode} from '@lexical/link';
-import {$createListItemNode, $createListNode} from '@lexical/list';
-import {LexicalComposer} from '@lexical/react/LexicalComposer';
-import {$createHeadingNode, $createQuoteNode} from '@lexical/rich-text';
+import { $createLinkNode } from "@lexical/link";
+import { $createListItemNode, $createListNode } from "@lexical/list";
+import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { $createHeadingNode, $createQuoteNode } from "@lexical/rich-text";
 import {
   $createParagraphNode,
   $createTextNode,
@@ -19,30 +19,30 @@ import {
   $isTextNode,
   DOMConversionMap,
   TextNode,
-} from 'lexical';
+} from "lexical";
 
-import './index.css';
+import "./index.css";
 
-import {isDevPlayground} from './appSettings';
-import {FlashMessageContext} from './context/FlashMessageContext';
-import {SettingsContext, useSettings} from './context/SettingsContext';
-import {SharedHistoryContext} from './context/SharedHistoryContext';
-import {ToolbarContext} from './context/ToolbarContext';
-import Editor from './Editor';
-import logo from './images/logo.svg';
-import PlaygroundNodes from './nodes/PlaygroundNodes';
-import DocsPlugin from './plugins/DocsPlugin';
-import PasteLogPlugin from './plugins/PasteLogPlugin';
-import {TableContext} from './plugins/TablePlugin';
-import TestRecorderPlugin from './plugins/TestRecorderPlugin';
-import {parseAllowedFontSize} from './plugins/ToolbarPlugin/fontSize';
-import TypingPerfPlugin from './plugins/TypingPerfPlugin';
-import Settings from './Settings';
-import PlaygroundEditorTheme from './themes/PlaygroundEditorTheme';
-import {parseAllowedColor} from './ui/ColorPicker';
+import { isDevPlayground } from "./appSettings";
+import { FlashMessageContext } from "./context/FlashMessageContext";
+import { SettingsContext, useSettings } from "./context/SettingsContext";
+import { SharedHistoryContext } from "./context/SharedHistoryContext";
+import { ToolbarContext } from "./context/ToolbarContext";
+import Editor from "./Editor";
+import logo from "./images/logo.svg";
+import PlaygroundNodes from "./nodes/PlaygroundNodes";
+import DocsPlugin from "./plugins/DocsPlugin";
+import PasteLogPlugin from "./plugins/PasteLogPlugin";
+import { TableContext } from "./plugins/TablePlugin";
+import TestRecorderPlugin from "./plugins/TestRecorderPlugin";
+import { parseAllowedFontSize } from "./plugins/ToolbarPlugin/fontSize";
+import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
+import Settings from "./Settings";
+import PlaygroundEditorTheme from "./themes/PlaygroundEditorTheme";
+import { parseAllowedColor } from "./ui/ColorPicker";
 
 console.warn(
-  'If you are profiling the playground app, please ensure you turn off the debug view. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting.',
+  "If you are profiling the playground app, please ensure you turn off the debug view. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting."
 );
 
 function buildImportMap(): DOMConversionMap {
@@ -93,17 +93,13 @@ function buildImportMap(): DOMConversionMap {
 
 function App(): JSX.Element {
   const {
-    settings: {isCollab, emptyEditor, measureTypingPerf},
+    settings: { isCollab, emptyEditor, measureTypingPerf },
   } = useSettings();
 
   const initialConfig = {
-    editorState: isCollab
-      ? null
-      : emptyEditor
-      ? undefined
-      : undefined,
-    html: {import: buildImportMap()},
-    namespace: 'Playground',
+    editorState: isCollab ? null : emptyEditor ? undefined : undefined,
+    html: { import: buildImportMap() },
+    namespace: "Playground",
     nodes: [...PlaygroundNodes],
     onError: (error: Error) => {
       throw error;
@@ -116,7 +112,6 @@ function App(): JSX.Element {
       <SharedHistoryContext>
         <TableContext>
           <ToolbarContext>
-         
             <div className="editor-shell">
               <Editor />
             </div>
@@ -135,11 +130,8 @@ function App(): JSX.Element {
 
 export default function PlaygroundApp(): JSX.Element {
   return (
-
-      <FlashMessageContext>
-        <App />
-      </FlashMessageContext>
-  
-
+    <FlashMessageContext>
+      <App />
+    </FlashMessageContext>
   );
 }
