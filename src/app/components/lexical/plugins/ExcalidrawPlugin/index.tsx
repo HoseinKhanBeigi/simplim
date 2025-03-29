@@ -6,7 +6,7 @@
  *
  */
 import type {ExcalidrawInitialElements} from '../../ui/ExcalidrawModal';
-import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/types';
+import type {AppState, BinaryFiles} from '@excalidraw/excalidraw/dist/types/excalidraw/types';
 import type {JSX} from 'react';
 
 import '@excalidraw/excalidraw/index.css';
