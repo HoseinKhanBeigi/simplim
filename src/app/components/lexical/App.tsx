@@ -68,20 +68,20 @@ function buildImportMap(): DOMConversionMap {
           ) {
             return output;
           }
-          const extraStyles = getExtraStyles(element);
-          if (extraStyles) {
-            const {forChild} = output;
-            return {
-              ...output,
-              forChild: (child, parent) => {
-                const textNode = forChild(child, parent);
-                if ($isTextNode(textNode)) {
-                  textNode.setStyle(textNode.getStyle() + extraStyles);
-                }
-                return textNode;
-              },
-            };
-          }
+          // const extraStyles = getExtraStyles(element);
+          // if (extraStyles) {
+          //   const {forChild} = output;
+          //   return {
+          //     ...output,
+          //     forChild: (child, parent) => {
+          //       const textNode = forChild(child, parent);
+          //       if ($isTextNode(textNode)) {
+          //         textNode.setStyle(textNode.getStyle() + extraStyles);
+          //       }
+          //       return textNode;
+          //     },
+          //   };
+          // }
           return output;
         },
       };
@@ -101,7 +101,7 @@ function App(): JSX.Element {
       ? null
       : emptyEditor
       ? undefined
-      : $prepopulatedRichText,
+      : undefined,
     html: {import: buildImportMap()},
     namespace: 'Playground',
     nodes: [...PlaygroundNodes],
