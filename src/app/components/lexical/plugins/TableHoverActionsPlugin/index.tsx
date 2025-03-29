@@ -202,7 +202,7 @@ function TableHoverActionsContainer({
           editor.getEditorState().read(
             () => {
               let resetObserver = false;
-              for (const [key, type] of mutations) {
+              for (const [key, type] of Array.from(mutations)) {
                 switch (type) {
                   case 'created': {
                     tableSetRef.current.add(key);
@@ -221,7 +221,7 @@ function TableHoverActionsContainer({
               if (resetObserver) {
                 // Reset resize observers
                 tableResizeObserver.disconnect();
-                for (const tableKey of tableSetRef.current) {
+                for (const tableKey of Array.from(tableSetRef.current)) {
                   const {tableElement} = $getTableAndElementByKey(tableKey);
                   tableResizeObserver.observe(tableElement);
                 }

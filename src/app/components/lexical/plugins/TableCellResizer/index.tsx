@@ -74,7 +74,7 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
     const tableKeys = new Set<NodeKey>();
     return mergeRegister(
       editor.registerMutationListener(TableNode, (nodeMutations) => {
-        for (const [nodeKey, mutation] of nodeMutations) {
+        for (const [nodeKey, mutation] of Array.from(nodeMutations)) {
           if (mutation === 'destroyed') {
             tableKeys.delete(nodeKey);
           } else {

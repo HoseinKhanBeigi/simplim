@@ -116,7 +116,7 @@ function CodeActionMenuContainer({
       CodeNode,
       (mutations) => {
         editor.getEditorState().read(() => {
-          for (const [key, type] of mutations) {
+          for (const [key, type] of Array.from(mutations)) {
             switch (type) {
               case 'created':
                 codeSetRef.current.add(key);
