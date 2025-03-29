@@ -260,7 +260,7 @@ ${steps.map(formatStep).join(`\n`)}
         pushStep('selectAll', '');
       } else if (keyPresses.has(key)) {
         pushStep('press', event.key);
-      } else if ([...key].length > 1) {
+      } else if (key.length > 1) {
         pushStep('keydown', event.key);
       } else {
         pushStep('type', event.key);
@@ -272,7 +272,7 @@ ${steps.map(formatStep).join(`\n`)}
         return;
       }
       const key = event.key;
-      if (!keyPresses.has(key) && [...key].length > 1) {
+      if (!keyPresses.has(key) && key.length > 1) {
         pushStep('keyup', event.key);
       }
     };
