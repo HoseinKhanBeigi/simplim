@@ -1,4 +1,9 @@
-import React from 'react';
+import React from "react";
+
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
+import { EXPORT_PDF_COMMAND } from "../lexical/plugins/PDFExportPlugin"; // adjust path as needed
+
+
 
 const ControllerNav = ({
   fileType,
@@ -9,7 +14,8 @@ const ControllerNav = ({
   onZoomIn,
   onZoomOut,
   onEdit,
-  isEditing
+  isEditing,
+  handleClick,
 }) => {
   return (
     <nav className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -54,14 +60,15 @@ const ControllerNav = ({
                 +
               </button>
             </div>
-
+           
+          
             {/* Make Button */}
             <button
               onClick={onEdit}
               className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
-                isEditing 
-                  ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                  : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                isEditing
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-blue-50 text-blue-600 hover:bg-blue-100"
               }`}
               title={isEditing ? "Hide Editor" : "Edit PDF"}
             >
@@ -74,4 +81,4 @@ const ControllerNav = ({
   );
 };
 
-export default ControllerNav; 
+export default ControllerNav;

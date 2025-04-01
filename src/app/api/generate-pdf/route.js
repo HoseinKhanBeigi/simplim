@@ -1,109 +1,153 @@
-// import puppeteer from 'puppeteer';
-import { NextResponse } from 'next/server';
+import puppeteer from "puppeteer";
 
-export async function POST(req) {
-  let browser = null;
+export const runtime = "nodejs";
+
+export async function POST(request) {
   try {
-    const { htmlContent } = await req.json();
+    const { html } = await request.json();
 
-    // Create a full HTML document with necessary styles
-    const fullHtml = `
+    console.log("html", html);
+
+    // Launch Puppeteer with specific Mac ARM configuration
+    const browser = await puppeteer.launch({
+      headless: "new",
+      executablePath:
+        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", // ✅ required!
+
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--font-render-hinting=none", // Better font rendering
+        "--disable-gpu",
+        "--disable-web-security", // Allow loading local resources
+      ],
+      defaultViewport: {
+        width: 794, // A4 width in pixels at 96 DPI
+        height: 1123, // A4 height in pixels at 96 DPI
+        deviceScaleFactor: 2, // Higher resolution
+      },
+    });
+
+    const page = await browser.newPage();
+
+    // Add default styles for better rendering of Lexical features
+    const htmlWithStyles = `
       <!DOCTYPE html>
       <html>
         <head>
           <meta charset="UTF-8">
-          <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
           <style>
             body {
-              padding: 40px;
-              font-family: Arial, sans-serif;
-              margin: 0;
-            }
-            .ql-editor {
-              padding: 0;
-              line-height: 1.5;
-              min-height: auto !important;
+              font-family: Arial, sans-serif;            
             }
           </style>
         </head>
         <body>
-          <div class="ql-editor">${htmlContent}</div>
+          ${html}
         </body>
       </html>
     `;
 
-    // Launch Puppeteer with system Chrome
-    // browser = await puppeteer.launch({
-    //   headless: 'new',
-    //   channel: 'chrome',
-    //   executablePath: process.platform === 'darwin' ? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' : undefined,
-    //   args: [
-    //     '--no-sandbox',
-    //     '--disable-setuid-sandbox',
-    //     '--disable-dev-shm-usage',
-    //     '--disable-accelerated-2d-canvas',
-    //     '--disable-gpu',
-    //     '--window-size=1920x1080'
-    //   ]
-    // });
+    // Set the content and wait for it to load
+    await page.setContent(htmlWithStyles, {
+      waitUntil: ["load", "networkidle0", "domcontentloaded"],
+      timeout: 30000,
+    });
 
-    // const page = await browser.newPage();
-    
-    // Set viewport for consistent rendering
-    // await page.setViewport({
-    //   width: 1920,
-    //   height: 1080,
-    //   deviceScaleFactor: 2
-    // });
-    
-    // // Set content with timeout and wait for network idle
-    // await page.setContent(fullHtml, { 
-    //   waitUntil: ['networkidle0', 'load', 'domcontentloaded'],
-    //   timeout: 30000
-    // });
-    
-    // // Wait for fonts and images to load
-    // await page.evaluateHandle('document.fonts.ready');
-    
-    // // Generate PDF with A4 format
-    // const pdf = await page.pdf({
-    //   format: 'A4',
-    //   margin: {
-    //     top: '40px',
-    //     right: '40px',
-    //     bottom: '40px',
-    //     left: '40px'
-    //   },
-    //   printBackground: true,
-    //   preferCSSPageSize: true,
-    //   scale: 0.8 // Slightly scale down to ensure content fits
-    // });
+    // Wait for fonts to load
+    await page.evaluateHandle("document.fonts.ready");
 
-    // // Close browser
-    // await browser.close();
-    // browser = null;
+    // Clean up text content
+    await page.evaluate(() => {
+      // Remove multiple spaces
+      // const paragraphs = document.querySelectorAll('p');
+      // paragraphs.forEach(p => {
+      //   p.textContent = p.textContent.replace(/\s+/g, ' ').trim();
+      // });
+      // Remove the line break conversion since Lexical already handles them correctly
+      // const content = document.body.innerHTML;
+      // document.body.innerHTML = content.replace(/\n/g, '<br>');
+    });
 
-    // Return the PDF as a response
-    return new NextResponse(pdf, {
-      status: 200,
+    // Add script to convert grid layouts to flex
+    await page.evaluate(() => {
+      const gridElements = document.querySelectorAll('[style*="grid-template-columns"]');
+      gridElements.forEach((element) => {
+        const gridTemplate = element.style.gridTemplateColumns;
+        
+        // Handle specific 1fr 3fr ratio
+        if (gridTemplate === '1fr 3fr') {
+          element.style.display = 'flex';
+          element.style.flexWrap = 'wrap';
+          element.style.gap = '20px';
+    
+          // Convert grid children with exact ratio
+          Array.from(element.children).forEach((child, index) => {
+            if (index === 0) {
+              // First column (1fr)
+              child.style.flex = '1 1 calc(25% - 10px)';
+              child.style.minWidth = 'calc(25% - 10px)';
+            } else {
+              // Second column (3fr)
+              child.style.flex = '3 3 calc(75% - 10px)';
+              child.style.minWidth = 'calc(75% - 10px)';
+            }
+          });
+        } else {
+          // Handle other grid layouts as before
+          const columns = gridTemplate.split(' ').length;
+          element.style.display = 'flex';
+          element.style.flexWrap = 'wrap';
+          element.style.gap = '20px';
+    
+          Array.from(element.children).forEach((child) => {
+            child.style.flex = `1 1 calc(${100 / columns}% - ${((columns - 1) * 20) / columns}px)`;
+            child.style.minWidth = `calc(${100 / columns}% - ${((columns - 1) * 20) / columns}px)`;
+          });
+        }
+      });
+    });
+
+    // Generate PDF with better settings
+    const pdf = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: {
+        top: "0mm",
+        right: "0mm",
+        bottom: "0mm",
+        left: "0mm",
+      },
+      displayHeaderFooter: true,
+      headerTemplate: "<div></div>",
+      footerTemplate:
+        '<div style="text-align: center; width: 100%;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+      preferCSSPageSize: true,
+    });
+
+    await browser.close();
+
+    // Return the PDF
+    return new Response(pdf, {
       headers: {
-        'Content-Type': 'application/pdf',
-        'Content-Disposition': 'attachment; filename=document.pdf'
-      }
+        "Content-Type": "application/pdf",
+        "Content-Disposition": "attachment; filename=document.pdf",
+      },
     });
   } catch (error) {
-    console.error('Error generating PDF:', error);
-    // Make sure to close the browser in case of error
-    if (browser) {
-      try {
-        await browser.close();
-      } catch (closeError) {
-        console.error('Error closing browser:', closeError);
+    console.error("Error generating PDF:", error);
+    return new Response(
+      JSON.stringify({
+        error: "Failed to generate PDF",
+        details: error.message,
+        stack: error.stack,
+      }),
+      {
+        status: 500,
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    }
-    return NextResponse.json(
-      { error: 'Failed to generate PDF: ' + error.message },
-      { status: 500 }
     );
   }
-} 
+}

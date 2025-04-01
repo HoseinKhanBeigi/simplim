@@ -75,6 +75,9 @@ import TreeViewPlugin from './plugins/TreeViewPlugin';
 import TwitterPlugin from './plugins/TwitterPlugin';
 import YouTubePlugin from './plugins/YouTubePlugin';
 import ContentEditable from './ui/ContentEditable';
+import PDFExportPlugin from './plugins/PDFExportPlugin';
+import PasteFormatPlugin from './plugins/PasteFormatPlugin';
+import TextWrapPlugin from './plugins/TextWrapPlugin';
 
 const skipCollaborationInit =
   // @ts-expect-error
@@ -159,6 +162,9 @@ export default function Editor(): JSX.Element {
         className={`editor-container ${showTreeView ? 'tree-view' : ''} ${
           !isRichText ? 'plain-text' : ''
         }`}>
+        <PDFExportPlugin />
+        {/* <PasteFormatPlugin /> */}
+        <TextWrapPlugin />
         {isMaxLength && <MaxLengthPlugin maxLength={30} />}
         <DragDropPaste />
         <AutoFocusPlugin />

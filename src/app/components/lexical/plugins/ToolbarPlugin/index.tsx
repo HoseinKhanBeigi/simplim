@@ -82,6 +82,7 @@ import {INSERT_PAGE_BREAK} from '../PageBreakPlugin';
 import {InsertPollDialog} from '../PollPlugin';
 import {SHORTCUTS} from '../ShortcutsPlugin/shortcuts';
 import {InsertTableDialog} from '../TablePlugin';
+import {SET_LONG_LINE} from '../TextWrapPlugin';
 import FontSize from './fontSize';
 import {
   clearFormatting,
@@ -134,6 +135,15 @@ const FONT_SIZE_OPTIONS: [string, string][] = [
   ['18px', '18px'],
   ['19px', '19px'],
   ['20px', '20px'],
+];
+
+const LINE_HEIGHT_OPTIONS: [string, string][] = [
+  ['1', '1.0'],
+  ['1.2', '1.2'],
+  ['1.5', '1.5'],
+  ['2', '2.0'],
+  ['2.5', '2.5'],
+  ['3', '3.0'],
 ];
 
 const ELEMENT_FORMAT_OPTIONS: {
@@ -468,6 +478,48 @@ function ElementFormatDropdown({
   );
 }
 
+function LineHeightDropDown({
+  editor,
+  value,
+  disabled = false,
+}: {
+  editor: LexicalEditor;
+  value: string;
+  disabled?: boolean;
+}): JSX.Element {
+  const handleClick = useCallback(
+    (option: string) => {
+      editor.update(() => {
+        const selection = $getSelection();
+        if (selection !== null) {
+          $patchStyleText(selection, {
+            'line-height': option,
+          });
+        }
+      });
+    },
+    [editor],
+  );
+
+  return (
+    <DropDown
+      disabled={disabled}
+      buttonClassName="toolbar-item line-height"
+      buttonLabel={value}
+      buttonIconClassName="icon line-height"
+      buttonAriaLabel="Formatting options for line height">
+      {LINE_HEIGHT_OPTIONS.map(([option, text]) => (
+        <DropDownItem
+          className={`item ${dropDownActiveClass(value === option)}`}
+          onClick={() => handleClick(option)}
+          key={option}>
+          <span className="text">{text}</span>
+        </DropDownItem>
+      ))}
+    </DropDown>
+  );
+}
+
 export default function ToolbarPlugin({
   editor,
   activeEditor,
@@ -668,6 +720,14 @@ export default function ToolbarPlugin({
         },
         COMMAND_PRIORITY_CRITICAL,
       ),
+      activeEditor.registerCommand(
+        SET_LONG_LINE,
+        (payload) => {
+          updateToolbarState('isLongLine', payload);
+          return false;
+        },
+        COMMAND_PRIORITY_CRITICAL,
+      ),
     );
   }, [$updateToolbar, activeEditor, editor, updateToolbarState]);
 
@@ -802,6 +862,12 @@ export default function ToolbarPlugin({
             selectionFontSize={toolbarState.fontSize.slice(0, -2)}
             editor={activeEditor}
             disabled={!isEditable}
+          />
+          <Divider />
+          <LineHeightDropDown
+            disabled={!isEditable || !toolbarState.isLongLine}
+            value={toolbarState.lineHeight || '1'}
+            editor={activeEditor}
           />
           <Divider />
           <button

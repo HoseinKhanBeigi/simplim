@@ -208,7 +208,7 @@ const AIInsightsPanel = ({ selectedText, insights, onClarify }) => {
                       </svg>
                     </button>
                   </div>
-                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 max-h-[300px] overflow-y-scroll">
                     {isEditing ? (
                       <div className="space-y-2">
                         <textarea

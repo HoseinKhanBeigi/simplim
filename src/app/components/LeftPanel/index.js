@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import { toast } from "react-hot-toast";
 import ControllerNav from "../Navigation";
 import UploadArea from "../Upload";
+// import { usePDF } from "../lexical/context/PDFContext";
 
 const LeftPanel = ({
   onFileUpload,
@@ -32,6 +33,7 @@ const LeftPanel = ({
   const editorRef = useRef(null);
   const maxChars = 500;
   const isPremium = userRole === "premium";
+  // const { exportPDF } = usePDF();
 
   // Handle text content from PDF with proper formatting
   const handlePdfTextContent = (text) => {
@@ -83,6 +85,10 @@ const LeftPanel = ({
     } finally {
       setUploadingFile(null);
     }
+  };
+
+  const handleClick = () => {
+    // exportPDF();
   };
 
   const handleTextSelection = (text) => {
@@ -238,6 +244,7 @@ const LeftPanel = ({
               onZoomOut={onZoomOut}
               onEdit={onEdit}
               isEditing={isEditing}
+              handleClick={handleClick}
             />
           </div>
 

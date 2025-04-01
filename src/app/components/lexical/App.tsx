@@ -11,6 +11,7 @@ import type { JSX } from "react";
 import { $createLinkNode } from "@lexical/link";
 import { $createListItemNode, $createListNode } from "@lexical/list";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $createHeadingNode, $createQuoteNode } from "@lexical/rich-text";
 import {
   $createParagraphNode,
@@ -22,6 +23,7 @@ import {
 } from "lexical";
 
 import "./index.css";
+import "./editor.css";
 
 import { isDevPlayground } from "./appSettings";
 import { FlashMessageContext } from "./context/FlashMessageContext";
@@ -40,6 +42,8 @@ import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import Settings from "./Settings";
 import PlaygroundEditorTheme from "./themes/PlaygroundEditorTheme";
 import { parseAllowedColor } from "./ui/ColorPicker";
+import { EXPORT_PDF_COMMAND } from './plugins/PDFExportPlugin';
+import { PDFProvider } from './context/PDFContext';
 
 console.warn(
   "If you are profiling the playground app, please ensure you turn off the debug view. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting."
@@ -91,6 +95,34 @@ function buildImportMap(): DOMConversionMap {
   return importMap;
 }
 
+function ExportPDFButton() {
+  const [editor] = useLexicalComposerContext();
+
+  const handleClick = () => {
+    editor.dispatchCommand(EXPORT_PDF_COMMAND, undefined);
+  };
+
+  return (
+    <button
+      onClick={handleClick}
+      className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 fixed bottom-4 right-4"
+    >
+      📄 Export PDF
+    </button>
+  );
+}
+
+function EditorContainer(): JSX.Element {
+  return (
+    <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 py-8">
+      <div className="editor-shell">
+        <Editor />
+        <ExportPDFButton />
+      </div>
+    </div>
+  );
+}
+
 function App(): JSX.Element {
   const {
     settings: { isCollab, emptyEditor, measureTypingPerf },
@@ -109,21 +141,15 @@ function App(): JSX.Element {
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <SharedHistoryContext>
-        <TableContext>
-          <ToolbarContext>
-            <div className="editor-shell">
-              <Editor />
-            </div>
-            {/* <Settings /> */}
-            {/* {isDevPlayground ? <DocsPlugin /> : null}
-            {isDevPlayground ? <PasteLogPlugin /> : null}
-            {isDevPlayground ? <TestRecorderPlugin /> : null} */}
-
-            {/* {measureTypingPerf ? <TypingPerfPlugin /> : null} */}
-          </ToolbarContext>
-        </TableContext>
-      </SharedHistoryContext>
+      <PDFProvider>
+        <SharedHistoryContext>
+          <TableContext>
+            <ToolbarContext>
+              <EditorContainer />
+            </ToolbarContext>
+          </TableContext>
+        </SharedHistoryContext>
+      </PDFProvider>
     </LexicalComposer>
   );
 }

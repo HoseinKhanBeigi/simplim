@@ -45,7 +45,37 @@ export const blockTypeToBlockName = {
 
 //disable eslint sorting rule for quick reference to toolbar state
 /* eslint-disable sort-keys-fix/sort-keys-fix */
-const INITIAL_TOOLBAR_STATE = {
+export interface ToolbarState {
+  bgColor: string;
+  blockType: keyof typeof blockTypeToBlockName;
+  canRedo: boolean;
+  canUndo: boolean;
+  codeLanguage: string;
+  elementFormat: ElementFormatType;
+  fontColor: string;
+  fontFamily: string;
+  fontSize: string;
+  fontSizeInputValue: string;
+  isBold: boolean;
+  isCode: boolean;
+  isHighlight: boolean;
+  isImageCaption: boolean;
+  isItalic: boolean;
+  isLink: boolean;
+  isRTL: boolean;
+  isStrikethrough: boolean;
+  isSubscript: boolean;
+  isSuperscript: boolean;
+  isUnderline: boolean;
+  isLowercase: boolean;
+  isUppercase: boolean;
+  isCapitalize: boolean;
+  rootType: keyof typeof rootTypeToRootName;
+  isLongLine: boolean;
+  lineHeight: string;
+}
+
+export const initialToolbarState: ToolbarState = {
   bgColor: '#fff',
   blockType: 'paragraph' as keyof typeof blockTypeToBlockName,
   canRedo: false,
@@ -54,9 +84,7 @@ const INITIAL_TOOLBAR_STATE = {
   elementFormat: 'left' as ElementFormatType,
   fontColor: '#000',
   fontFamily: 'Arial',
-  // Current font size in px
   fontSize: `${DEFAULT_FONT_SIZE}px`,
-  // Font size input value - for controlled input
   fontSizeInputValue: `${DEFAULT_FONT_SIZE}`,
   isBold: false,
   isCode: false,
@@ -73,9 +101,9 @@ const INITIAL_TOOLBAR_STATE = {
   isUppercase: false,
   isCapitalize: false,
   rootType: 'root' as keyof typeof rootTypeToRootName,
+  isLongLine: false,
+  lineHeight: '1',
 };
-
-type ToolbarState = typeof INITIAL_TOOLBAR_STATE;
 
 // Utility type to get keys and infer value types
 type ToolbarStateKey = keyof ToolbarState;
@@ -96,7 +124,7 @@ export const ToolbarContext = ({
 }: {
   children: ReactNode;
 }): JSX.Element => {
-  const [toolbarState, setToolbarState] = useState(INITIAL_TOOLBAR_STATE);
+  const [toolbarState, setToolbarState] = useState(initialToolbarState);
   const selectionFontSize = toolbarState.fontSize;
 
   const updateToolbarState = useCallback(
