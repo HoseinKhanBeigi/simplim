@@ -118,6 +118,7 @@ function EditorContainer(): JSX.Element {
       <div className="flex flex-row justify-center w-[100%]">
         <div className="editor-shell">
           <Editor />
+          <ExportPDFButton />
         </div>
       </div>
     </div>
