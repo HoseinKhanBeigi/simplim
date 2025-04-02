@@ -85,6 +85,28 @@ const AIInsightsPanel = ({ selectedText, insights, onClarify }) => {
     }
   }, [selectedText, isEditing]);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Reset all states
+      setIsProcessing(false);
+      setIsExpanded(false);
+      setIsPlaying(false);
+      setActiveTab('current');
+      setShowExitPrompt(false);
+      setShowDiagram(false);
+      setIsDiagramLoading(false);
+      setEditableText("");
+      setIsEditing(false);
+      setIsClarifying(false);
+      
+      // Clean up localStorage if needed
+      if (savedItems.length === 0) {
+        localStorage.removeItem('savedInsights');
+      }
+    };
+  }, [savedItems]);
+
   // Initialize editor content when entering edit mode
   const handleEditPDF = () => {
     setIsEditing(true);

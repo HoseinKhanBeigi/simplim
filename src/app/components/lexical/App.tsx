@@ -7,6 +7,7 @@
  */
 
 import type { JSX } from "react";
+import { useEffect } from "react";
 
 import { $createLinkNode } from "@lexical/link";
 import { $createListItemNode, $createListNode } from "@lexical/list";
@@ -140,6 +141,14 @@ function App(): JSX.Element {
     },
     theme: PlaygroundEditorTheme,
   };
+
+  // Add cleanup effect for editor
+  useEffect(() => {
+    return () => {
+      // Cleanup will be handled by LexicalComposer's internal cleanup
+      // This is just a placeholder for any additional cleanup we might need
+    };
+  }, []);
 
   return (
     <LexicalComposer initialConfig={initialConfig}>

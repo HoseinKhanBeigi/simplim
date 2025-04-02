@@ -11,8 +11,8 @@ export async function POST(request) {
     // Launch Puppeteer with specific Mac ARM configuration
     const browser = await puppeteer.launch({
       headless: "new",
-      executablePath:
-        "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", // ✅ required!
+      // executablePath:
+      //   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", // ✅ required!
 
       args: [
         "--no-sandbox",
