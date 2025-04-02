@@ -114,7 +114,7 @@ function ExportPDFButton() {
 
 function EditorContainer(): JSX.Element {
   return (
-    <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 py-8">
+    <div className="flex flex-col items-center justify-start bg-gray-50 py-8">
       <div className="editor-shell">
         <Editor />
         <ExportPDFButton />
