@@ -11,7 +11,7 @@ import type { JSX } from "react";
 import { $createLinkNode } from "@lexical/link";
 import { $createListItemNode, $createListNode } from "@lexical/list";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { $createHeadingNode, $createQuoteNode } from "@lexical/rich-text";
 import {
   $createParagraphNode,
@@ -42,8 +42,8 @@ import TypingPerfPlugin from "./plugins/TypingPerfPlugin";
 import Settings from "./Settings";
 import PlaygroundEditorTheme from "./themes/PlaygroundEditorTheme";
 import { parseAllowedColor } from "./ui/ColorPicker";
-import { EXPORT_PDF_COMMAND } from './plugins/PDFExportPlugin';
-import { PDFProvider } from './context/PDFContext';
+import { EXPORT_PDF_COMMAND } from "./plugins/PDFExportPlugin";
+import { PDFProvider } from "./context/PDFContext";
 
 console.warn(
   "If you are profiling the playground app, please ensure you turn off the debug view. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting."
@@ -114,10 +114,11 @@ function ExportPDFButton() {
 
 function EditorContainer(): JSX.Element {
   return (
-    <div className="flex flex-col items-center justify-start bg-gray-50 py-8">
-      <div className="editor-shell">
-        <Editor />
-        <ExportPDFButton />
+    <div className="overflow-x-scroll">
+      <div className="flex flex-row justify-center w-[100%]">
+        <div className="editor-shell">
+          <Editor />
+        </div>
       </div>
     </div>
   );

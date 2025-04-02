@@ -10,13 +10,13 @@
 
 
 .editor-shell {
-  margin: 20px auto;
+  /* margin: 20px auto;
   border-radius: 2px;
   max-width: 1100px;
   color: #000;
   position: relative;
   line-height: 1.7;
-  font-weight: 400;
+  font-weight: 400; */
 }
 
 .editor-shell .editor-container {
@@ -1453,21 +1453,6 @@ button.action-button:disabled {
   text-align: right;
 }
 
-.toolbar {
-  display: flex;
-  margin-bottom: 1px;
-  background: #ababab;
-  padding: 15px;
-  /* border-top-left-radius: 10px;
-  border-top-right-radius: 10px; */
-  vertical-align: middle;
-  overflow: auto;
-  height: 46px;
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  overflow-y: hidden; /* disable vertical scroll*/
-}
 
 button.toolbar-item {
   border: 0;

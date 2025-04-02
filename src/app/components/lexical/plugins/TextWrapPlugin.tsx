@@ -37,16 +37,18 @@ export default function TextWrapPlugin(): null {
         // Check if text has spaces
         const hasSpaces = text.includes(" ");
 
+        editor.dispatchCommand(SET_LONG_LINE, true);
+
         if (text.length > MAX_CHARS_PER_LINE) {
           // Only style if text exceeds the calculated line width
           // textNode.__style = "word-break: break-all; background: antiquewhite;";
           // Dispatch an event to notify toolbar
-          editor.dispatchCommand(SET_LONG_LINE, true);
+          // editor.dispatchCommand(SET_LONG_LINE, true);
         } else {
           // Normal text with spaces should wrap naturally
           // textNode.__style = "word-wrap: break-word;";
           // Reset toolbar state
-          editor.dispatchCommand(SET_LONG_LINE, false);
+          // editor.dispatchCommand(SET_LONG_LINE, false);
         }
       }
     });

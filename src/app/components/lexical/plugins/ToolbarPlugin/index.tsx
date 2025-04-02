@@ -505,8 +505,7 @@ function LineHeightDropDown({
     <DropDown
       disabled={disabled}
       buttonClassName="toolbar-item line-height"
-      buttonLabel={value}
-      buttonIconClassName="icon line-height"
+      buttonLabel={'line-height'}
       buttonAriaLabel="Formatting options for line height">
       {LINE_HEIGHT_OPTIONS.map(([option, text]) => (
         <DropDownItem

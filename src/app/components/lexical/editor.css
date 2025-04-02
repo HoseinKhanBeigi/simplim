@@ -1,7 +1,7 @@
 .editor-shell {
   position: relative;
   width: 792px; /* A4 width in pixels at 96 DPI */
-  margin: 0 auto;
+  /* margin: 0 auto; */
   background: #fff;
   border-radius: 2px;
   /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
@@ -42,7 +42,7 @@
 
 /* A4 paper effect */
 .editor-shell::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 5px;
   right: 5px;
@@ -59,20 +59,21 @@
 
 .toolbar {
   display: flex;
-  flex-wrap: wrap;
+  /* margin: 8px; */
+  border-radius: 8px;
+  /* flex-wrap: wrap; */
   margin-bottom: 1px;
   background: darkseagreen;
   padding: 8px;
-
   vertical-align: middle;
   overflow: auto;
-height: 100px;
+  height: 50px;
   position: sticky;
   top: 0;
   z-index: 2;
   gap: 8px;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
+  width: 792px;
   box-sizing: border-box;
 }

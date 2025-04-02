@@ -45,6 +45,9 @@
     "y-websocket": "^1.5.4",
     "yjs": ">=13.5.42"
   },
+  "engines": {
+  "node": "20.x"
+},
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.0.14",
