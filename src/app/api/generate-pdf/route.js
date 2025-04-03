@@ -85,7 +85,7 @@ export async function POST(request) {
       </html>
     `;
 
-    // Set content with better error handling
+    // Set
     await page.setContent(htmlWithStyles, {
       waitUntil: ["networkidle0", "domcontentloaded"],
       timeout: 30000,
