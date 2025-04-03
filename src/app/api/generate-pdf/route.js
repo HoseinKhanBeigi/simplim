@@ -6,13 +6,19 @@ export const runtime = "nodejs";
 export async function POST(req) {
   const { html } = await req.json();
 
+  const execPath = await chromium.executablePath;
+
+  if (!execPath) {
+    throw new Error("❌ No Chromium executable found in Vercel. Check chrome-aws-lambda setup.");
+  }
+  
   const browser = await puppeteer.launch({
-    executablePath: await chromium.executablePath ?? "/usr/bin/chromium-browser", // fallback for localhost
+    executablePath: execPath,
     args: chromium.args,
     headless: chromium.headless,
     defaultViewport: chromium.defaultViewport,
   });
-
+  
   const page = await browser.newPage();
   await page.setContent(html, { waitUntil: "networkidle0" });
 
