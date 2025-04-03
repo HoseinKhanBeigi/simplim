@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import puppeteer from 'puppeteer-core';
+import chrome from 'chrome-aws-lambda';
 
 export async function POST(req) {
   try {
-    const browser = await puppeteer.launch({ headless: 'new' });
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      executablePath: await chrome.executablePath,
+      args: chrome.args,
+      defaultViewport: chrome.defaultViewport,
+    });
     const page = await browser.newPage();
     await page.setContent('<h1>Hello, PDF!</h1>'); // Example HTML, replace with your content
     const buffer = await page.pdf();
