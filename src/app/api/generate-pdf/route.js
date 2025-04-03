@@ -1,48 +1,16 @@
 // import puppeteer from "puppeteer";
-import puppeteer from "puppeteer-core";
-import chromium from "chrome-aws-lambda";
+// import puppeteer from "puppeteer-core";
+// import chromium from "chrome-aws-lambda";
+import html2pdf from 'html2pdf.js';
 
 export const runtime = "nodejs";
 export const maxDuration = 30; // Set max duration to 30 seconds to match Vercel's limit
 
 export async function POST(request) {
-  let browser = null;
   try {
     const { html } = await request.json();
 
-    console.log("Starting PDF generation...");
-
-    // Determine if we're running in Vercel or local environment
-    const isVercel = process.env.VERCEL === '1';
-    
-    // Configure browser launch options based on environment
-    const launchOptions = isVercel
-      ? {
-          executablePath: await chromium.executablePath,
-          args: chromium.args,
-          defaultViewport: chromium.defaultViewport,
-          headless: chromium.headless,
-          ignoreHTTPSErrors: true,
-        }
-      : {
-          executablePath: process.platform === "darwin"
-            ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-            : process.platform === "win32"
-            ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-            : "/usr/bin/chromium-browser",
-          headless: "new",
-          args: ['--no-sandbox'],
-          ignoreHTTPSErrors: true,
-        };
-
-    // Launch browser with combined options
-    browser = await puppeteer.launch(launchOptions);
-
-    const page = await browser.newPage();
-    
-    // Set longer timeout for page operations
-    await page.setDefaultNavigationTimeout(30000); // 30 seconds
-    await page.setDefaultTimeout(30000);
+    console.log("Starting PDF generation with html2pdf.js...");
 
     // Add default styles for better rendering
     const htmlWithStyles = `
@@ -68,37 +36,26 @@ export async function POST(request) {
       </html>
     `;
 
-    // Set content and wait for network to be idle
-    await page.setContent(htmlWithStyles, {
-      waitUntil: ["networkidle0", "domcontentloaded"],
-      timeout: 30000,
-    });
-
-    // Wait for fonts and resources to load
-    await Promise.all([
-      page.evaluateHandle("document.fonts.ready"),
-      page.waitForFunction(() => document.readyState === 'complete', { timeout: 5000 })
-    ]);
-
-    // Generate PDF with better settings
-    const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: {
-        top: "0mm",
-        right: "0mm",
-        bottom: "0mm",
-        left: "0mm",
+    // Configure PDF options
+    const options = {
+      margin: 0,
+      filename: 'document.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2,
+        useCORS: true,
+        logging: false
       },
-      displayHeaderFooter: true,
-      headerTemplate: "<div></div>",
-      footerTemplate:
-        '<div style="text-align: center; width: 100%;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
-      preferCSSPageSize: true,
-    });
+      jsPDF: { 
+        unit: 'mm', 
+        format: 'a4', 
+        orientation: 'portrait' 
+      },
+      pagebreak: { mode: 'avoid-all' }
+    };
 
-    await page.close();
-    await browser.close();
+    // Generate PDF
+    const pdf = await html2pdf().from(htmlWithStyles).set(options).outputPdf('arraybuffer');
 
     return new Response(pdf, {
       headers: {
@@ -121,13 +78,5 @@ export async function POST(request) {
         },
       }
     );
-  } finally {
-    if (browser) {
-      try {
-        await browser.close();
-      } catch (closeError) {
-        console.error("Failed to close browser:", closeError);
-      }
-    }
   }
 }
