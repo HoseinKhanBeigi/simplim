@@ -3,44 +3,27 @@ import chromium from "chrome-aws-lambda";
 
 export const runtime = "nodejs";
 
-export async function POST(req) {
-  try {
-    const { html } = await req.json();
+export async function POST(req: Request) {
+  const { html } = await req.json();
 
-    const browser = await puppeteer.launch({
-      executablePath: await chromium.executablePath, // ✅ Vercel-compatible binary
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      headless: chromium.headless, // ❗ Must be chromium.headless
-    });
+  const browser = await puppeteer.launch({
+    executablePath: await chromium.executablePath ?? "/usr/bin/chromium-browser", // fallback for localhost
+    args: chromium.args,
+    headless: chromium.headless,
+    defaultViewport: chromium.defaultViewport,
+  });
 
-    const page = await browser.newPage();
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: "networkidle0" });
 
-    const htmlDoc = `
-      <html>
-        <head><meta charset="utf-8"></head>
-        <body>${html}</body>
-      </html>
-    `;
+  const pdf = await page.pdf({ format: "A4" });
 
-    await page.setContent(htmlDoc, { waitUntil: "networkidle0" });
+  await browser.close();
 
-    const pdf = await page.pdf({ format: "A4" });
-
-    await browser.close();
-
-    return new Response(pdf, {
-      status: 200,
-      headers: {
-        "Content-Type": "application/pdf",
-        "Content-Disposition": "inline; filename=document.pdf",
-      },
-    });
-  } catch (err) {
-    console.error("PDF Error:", err);
-    return new Response(
-      JSON.stringify({ error: "Failed to generate PDF", details: err.message }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
-    );
-  }
+  return new Response(pdf, {
+    headers: {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": "inline; filename=document.pdf",
+    },
+  });
 }
