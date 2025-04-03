@@ -19,7 +19,7 @@ export async function POST(request) {
     const launchOptions = isVercel
       ? {
           executablePath: await chromium.executablePath,
-          args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
+          args: chromium.args,
           defaultViewport: chromium.defaultViewport,
           headless: chromium.headless,
           ignoreHTTPSErrors: true,
@@ -31,7 +31,7 @@ export async function POST(request) {
             ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
             : "/usr/bin/chromium-browser",
           headless: "new",
-          args: ['--no-sandbox', '--disable-setuid-sandbox'],
+          args: ['--no-sandbox'],
           ignoreHTTPSErrors: true,
         };
 
