@@ -9,13 +9,14 @@ import FileViewer from "../FileViewer";
 import { Toaster, toast } from "react-hot-toast";
 import dynamic from "next/dynamic";
 
-// Dynamically import PlaygroundApp with no SSR and error boundary
+// Dynamically import PlaygroundApp with no SSR
 const PlaygroundApp = dynamic(() => import("../lexical/App"), {
   ssr: false,
-  loading: () => <div>Loading editor...</div>,
-  onError: (error) => {
-    console.error('Error loading PlaygroundApp:', error);
-  }
+  loading: () => (
+    <div className="flex justify-center items-center p-4">
+      Loading editor...
+    </div>
+  ),
 });
 
 const AppLayout = () => {
@@ -31,11 +32,10 @@ const AppLayout = () => {
     { content: "Select text to get insights.", source: null },
   ]);
   const [isResizing, setIsResizing] = useState(false);
-  const [leftPanelWidth, setLeftPanelWidth] = useState(60); // percentage
+  const [leftPanelWidth, setLeftPanelWidth] = useState(50); // percentage
   const [pdfsEdited, setPdfsEdited] = useState(0);
   const MAX_FREE_PDFS = 5;
   const [isEditing, setIsEditing] = useState(false);
-  const [editorError, setEditorError] = useState(null);
 
   // Handle panel resizing
   const handleMouseDown = useCallback((e) => {
@@ -272,22 +272,8 @@ const AppLayout = () => {
   };
 
   const handleEdit = () => {
-    try {
-      setIsEditing(!isEditing);
-      setEditorError(null);
-    } catch (error) {
-      console.error('Error toggling editor:', error);
-      setEditorError(error.message);
-    }
+    setIsEditing(!isEditing);
   };
-
-  // Cleanup effect for editor
-  useEffect(() => {
-    return () => {
-      setIsEditing(false);
-      setEditorError(null);
-    };
-  }, []);
 
   if (!user) {
     return <AuthLayout onLogin={handleLogin} onGuestMode={handleGuestMode} />;
@@ -304,6 +290,11 @@ const AppLayout = () => {
           className="border-r border-gray-200 bg-white overflow-hidden"
           style={{ width: `${leftPanelWidth}%` }}
         >
+          {isEditing && (
+            <div className="border-b border-gray-200 mb-4">
+              <PlaygroundApp />
+            </div>
+          )}
           <LeftPanel
             currentFile={currentFile}
             onFileUpload={handleFileUpload}
@@ -323,31 +314,13 @@ const AppLayout = () => {
             onUpgrade={handleUpgrade}
           >
             <div className="flex flex-col flex-1">
-              {isEditing ? (
-                <div className="relative h-full">
-                  {editorError ? (
-                    <div className="p-4 bg-red-50 text-red-700 rounded-lg m-4">
-                      <p>Error loading editor: {editorError}</p>
-                      <button
-                        onClick={() => setEditorError(null)}
-                        className="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 rounded"
-                      >
-                        Try Again
-                      </button>
-                    </div>
-                  ) : (
-                    <PlaygroundApp />
-                  )}
-                </div>
-              ) : (
-                <FileViewer
-                  file={currentFile}
-                  currentPage={currentPage}
-                  scale={scale}
-                  onLoadSuccess={handleLoadSuccess}
-                  onLoadComplete={handleDocumentLoadComplete}
-                />
-              )}
+              <FileViewer
+                file={currentFile}
+                currentPage={currentPage}
+                scale={scale}
+                onLoadSuccess={handleLoadSuccess}
+                onLoadComplete={handleDocumentLoadComplete}
+              />
             </div>
           </LeftPanel>
         </div>
