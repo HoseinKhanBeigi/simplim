@@ -7,21 +7,21 @@ export const maxDuration = 30; // Set max duration to 30 seconds to match Vercel
 
 export async function POST(req) {
   try {
-    // Configure chromium for serverless environment
-    const executablePath = process.env.CHROME_EXECUTABLE_PATH || await chromium.executablePath;
+    // Get the HTML content from the request
+    const { html } = await req.json();
     
+    // Use a direct approach to get the executable path
+    const executablePath = process.env.CHROME_EXECUTABLE_PATH || '/tmp/chromium';
+    console.log('Using executable path:', executablePath);
+    
+    // Launch browser with minimal configuration
     const browser = await puppeteer.launch({
-      args: [...chromium.args, '--hide-scrollbars', '--disable-web-security'],
-      defaultViewport: chromium.defaultViewport,
-      executablePath,
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--hide-scrollbars', '--disable-web-security'],
+      executablePath: executablePath,
       headless: true,
-      ignoreHTTPSErrors: true,
     });
     
     const page = await browser.newPage();
-    
-    // Get the HTML content from the request
-    const { html } = await req.json();
     
     // Set content with proper styling
     await page.setContent(`
