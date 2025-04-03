@@ -304,23 +304,6 @@ const AppLayout = () => {
           className="border-r border-gray-200 bg-white overflow-hidden"
           style={{ width: `${leftPanelWidth}%` }}
         >
-          {isEditing && (
-            <div className="relative h-full">
-              {editorError ? (
-                <div className="p-4 bg-red-50 text-red-700 rounded-lg m-4">
-                  <p>Error loading editor: {editorError}</p>
-                  <button
-                    onClick={() => setEditorError(null)}
-                    className="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 rounded"
-                  >
-                    Try Again
-                  </button>
-                </div>
-              ) : (
-                <PlaygroundApp />
-              )}
-            </div>
-          )}
           <LeftPanel
             currentFile={currentFile}
             onFileUpload={handleFileUpload}
@@ -340,13 +323,31 @@ const AppLayout = () => {
             onUpgrade={handleUpgrade}
           >
             <div className="flex flex-col flex-1">
-              <FileViewer
-                file={currentFile}
-                currentPage={currentPage}
-                scale={scale}
-                onLoadSuccess={handleLoadSuccess}
-                onLoadComplete={handleDocumentLoadComplete}
-              />
+              {isEditing ? (
+                <div className="relative h-full">
+                  {editorError ? (
+                    <div className="p-4 bg-red-50 text-red-700 rounded-lg m-4">
+                      <p>Error loading editor: {editorError}</p>
+                      <button
+                        onClick={() => setEditorError(null)}
+                        className="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 rounded"
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  ) : (
+                    <PlaygroundApp />
+                  )}
+                </div>
+              ) : (
+                <FileViewer
+                  file={currentFile}
+                  currentPage={currentPage}
+                  scale={scale}
+                  onLoadSuccess={handleLoadSuccess}
+                  onLoadComplete={handleDocumentLoadComplete}
+                />
+              )}
             </div>
           </LeftPanel>
         </div>
