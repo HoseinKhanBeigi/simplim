@@ -13,13 +13,13 @@ export async function POST(request) {
     console.log("Starting PDF generation...");
 
     // Determine if we're running in Vercel or local environment
-    const isVercel = true
+    const isVercel = process.env.VERCEL === '1';
     
     // Configure browser launch options based on environment
     const launchOptions = isVercel
       ? {
           executablePath: await chromium.executablePath,
-          args: chromium.args,
+          args: [...chromium.args, '--no-sandbox'],
           defaultViewport: chromium.defaultViewport,
           headless: chromium.headless,
           ignoreHTTPSErrors: true,
@@ -31,29 +31,12 @@ export async function POST(request) {
             ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
             : "/usr/bin/chromium-browser",
           headless: "new",
+          args: ['--no-sandbox'],
           ignoreHTTPSErrors: true,
         };
 
-    // Add common arguments for both environments
-    const commonArgs = [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--disable-gpu',
-      '--single-process'
-    ];
-
     // Launch browser with combined options
-    browser = await puppeteer.launch({
-      ...launchOptions,
-      args: [...(launchOptions.args || []), ...commonArgs],
-      defaultViewport: {
-        width: 794,
-        height: 1123,
-        deviceScaleFactor: 2,
-      },
-    });
+    browser = await puppeteer.launch(launchOptions);
 
     const page = await browser.newPage();
     
@@ -85,7 +68,7 @@ export async function POST(request) {
       </html>
     `;
 
-    // Set
+    // Set content and wait for network to be idle
     await page.setContent(htmlWithStyles, {
       waitUntil: ["networkidle0", "domcontentloaded"],
       timeout: 30000,
