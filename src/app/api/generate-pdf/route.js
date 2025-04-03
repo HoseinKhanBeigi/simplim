@@ -3,7 +3,7 @@ import chromium from "chrome-aws-lambda";
 
 export const runtime = "nodejs";
 
-export async function POST(req: Request) {
+export async function POST(req) {
   const { html } = await req.json();
 
   const browser = await puppeteer.launch({
