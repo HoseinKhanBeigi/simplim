@@ -45,6 +45,7 @@ import PlaygroundEditorTheme from "./themes/PlaygroundEditorTheme";
 import { parseAllowedColor } from "./ui/ColorPicker";
 import { EXPORT_PDF_COMMAND } from "./plugins/PDFExportPlugin";
 import { PDFProvider } from "./context/PDFContext";
+import { ErrorBoundary } from "react-error-boundary";
 
 console.warn(
   "If you are profiling the playground app, please ensure you turn off the debug view. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting."
@@ -137,17 +138,32 @@ function App(): JSX.Element {
     namespace: "Playground",
     nodes: [...PlaygroundNodes],
     onError: (error: Error) => {
-      throw error;
+      console.error('Lexical editor error:', error);
+      // Don't throw the error, just log it
     },
     theme: PlaygroundEditorTheme,
   };
 
-  // Add cleanup effect for editor
+  // Enhanced cleanup effect for editor
   useEffect(() => {
-    return () => {
-      // Cleanup will be handled by LexicalComposer's internal cleanup
-      // This is just a placeholder for any additional cleanup we might need
+    let isMounted = true;
+
+    const cleanup = () => {
+      if (!isMounted) return;
+      isMounted = false;
+      
+      // Cleanup any remaining event listeners
+      const rootElement = document.querySelector('.editor-shell');
+      if (rootElement) {
+        // Remove common event listeners that might have been added
+        const events = ['click', 'mousedown', 'mouseup', 'mousemove', 'keydown', 'keyup', 'input', 'change'];
+        events.forEach(eventType => {
+          rootElement.removeEventListener(eventType, () => {});
+        });
+      }
     };
+
+    return cleanup;
   }, []);
 
   return (
@@ -167,8 +183,10 @@ function App(): JSX.Element {
 
 export default function PlaygroundApp(): JSX.Element {
   return (
-    <FlashMessageContext>
-      <App />
-    </FlashMessageContext>
+    <ErrorBoundary fallback={<div>Something went wrong with the editor. Please try refreshing the page.</div>}>
+      <FlashMessageContext>
+        <App />
+      </FlashMessageContext>
+    </ErrorBoundary>
   );
 }

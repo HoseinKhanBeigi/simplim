@@ -24,6 +24,7 @@
     "@lexical/selection": "0.29.0",
     "@lexical/table": "0.29.0",
     "@lexical/utils": "0.29.0",
+    "chrome-aws-lambda": "^10.1.0",
     "framer-motion": "^12.6.2",
     "html2canvas": "^1.4.1",
     "html2pdf.js": "^0.10.3",
@@ -36,7 +37,8 @@
     "pdfjs-dist": "^3.11.174",
     "pdfmake": "^0.2.18",
     "prettier": "^2.8.8",
-    "puppeteer": "^24.4.0",
+    "puppeteer": "^24.5.0",
+    "puppeteer-core": "^21.0.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-dropzone": "^14.3.8",
@@ -46,8 +48,8 @@
     "yjs": ">=13.5.42"
   },
   "engines": {
-  "node": "20.x"
-},
+    "node": "20.x"
+  },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4.0.14",

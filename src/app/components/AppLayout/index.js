@@ -9,10 +9,13 @@ import FileViewer from "../FileViewer";
 import { Toaster, toast } from "react-hot-toast";
 import dynamic from "next/dynamic";
 
-// Dynamically import PlaygroundApp with no SSR
+// Dynamically import PlaygroundApp with no SSR and error boundary
 const PlaygroundApp = dynamic(() => import("../lexical/App"), {
   ssr: false,
   loading: () => <div>Loading editor...</div>,
+  onError: (error) => {
+    console.error('Error loading PlaygroundApp:', error);
+  }
 });
 
 const AppLayout = () => {
@@ -32,6 +35,7 @@ const AppLayout = () => {
   const [pdfsEdited, setPdfsEdited] = useState(0);
   const MAX_FREE_PDFS = 5;
   const [isEditing, setIsEditing] = useState(false);
+  const [editorError, setEditorError] = useState(null);
 
   // Handle panel resizing
   const handleMouseDown = useCallback((e) => {
@@ -268,8 +272,22 @@ const AppLayout = () => {
   };
 
   const handleEdit = () => {
-    setIsEditing(!isEditing);
+    try {
+      setIsEditing(!isEditing);
+      setEditorError(null);
+    } catch (error) {
+      console.error('Error toggling editor:', error);
+      setEditorError(error.message);
+    }
   };
+
+  // Cleanup effect for editor
+  useEffect(() => {
+    return () => {
+      setIsEditing(false);
+      setEditorError(null);
+    };
+  }, []);
 
   if (!user) {
     return <AuthLayout onLogin={handleLogin} onGuestMode={handleGuestMode} />;
@@ -286,7 +304,23 @@ const AppLayout = () => {
           className="border-r border-gray-200 bg-white overflow-hidden"
           style={{ width: `${leftPanelWidth}%` }}
         >
-          {isEditing && <PlaygroundApp />}
+          {isEditing && (
+            <div className="relative h-full">
+              {editorError ? (
+                <div className="p-4 bg-red-50 text-red-700 rounded-lg m-4">
+                  <p>Error loading editor: {editorError}</p>
+                  <button
+                    onClick={() => setEditorError(null)}
+                    className="mt-2 px-3 py-1 bg-red-100 hover:bg-red-200 rounded"
+                  >
+                    Try Again
+                  </button>
+                </div>
+              ) : (
+                <PlaygroundApp />
+              )}
+            </div>
+          )}
           <LeftPanel
             currentFile={currentFile}
             onFileUpload={handleFileUpload}

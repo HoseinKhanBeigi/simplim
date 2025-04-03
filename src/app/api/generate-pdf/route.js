@@ -1,36 +1,67 @@
-import puppeteer from "puppeteer";
+// import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "chrome-aws-lambda";
 
 export const runtime = "nodejs";
+export const maxDuration = 60; // Set max duration to 60 seconds
 
 export async function POST(request) {
+  let browser = null;
   try {
     const { html } = await request.json();
 
-    console.log("html", html);
+    console.log("Starting PDF generation...");
 
-    // Launch Puppeteer with specific Mac ARM configuration
-    const browser = await puppeteer.launch({
-      headless: "new",
-      // executablePath:
-      //   "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", // ✅ required!
+    // Determine if we're running in Vercel or local environment
+    const isVercel = process.env.VERCEL === '1';
+    
+    // Configure browser launch options based on environment
+    const launchOptions = isVercel
+      ? {
+          executablePath: await chromium.executablePath,
+          args: chromium.args,
+          defaultViewport: chromium.defaultViewport,
+          headless: chromium.headless,
+          ignoreHTTPSErrors: true,
+        }
+      : {
+          executablePath: process.platform === "darwin"
+            ? "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+            : process.platform === "win32"
+            ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
+            : "/usr/bin/chromium-browser",
+          headless: "new",
+          ignoreHTTPSErrors: true,
+        };
 
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--font-render-hinting=none", // Better font rendering
-        "--disable-gpu",
-        "--disable-web-security", // Allow loading local resources
-      ],
+    // Add common arguments for both environments
+    const commonArgs = [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--disable-gpu',
+      '--single-process'
+    ];
+
+    // Launch browser with combined options
+    browser = await puppeteer.launch({
+      ...launchOptions,
+      args: [...(launchOptions.args || []), ...commonArgs],
       defaultViewport: {
-        width: 794, // A4 width in pixels at 96 DPI
-        height: 1123, // A4 height in pixels at 96 DPI
-        deviceScaleFactor: 2, // Higher resolution
+        width: 794,
+        height: 1123,
+        deviceScaleFactor: 2,
       },
     });
 
     const page = await browser.newPage();
+    
+    // Set longer timeout for page operations
+    await page.setDefaultNavigationTimeout(30000); // 30 seconds
+    await page.setDefaultTimeout(30000);
 
-    // Add default styles for better rendering of Lexical features
+    // Add default styles for better rendering
     const htmlWithStyles = `
       <!DOCTYPE html>
       <html>
@@ -38,7 +69,13 @@ export async function POST(request) {
           <meta charset="UTF-8">
           <style>
             body {
-              font-family: Arial, sans-serif;            
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 20px;
+            }
+            @page {
+              size: A4;
+              margin: 0;
             }
           </style>
         </head>
@@ -48,65 +85,17 @@ export async function POST(request) {
       </html>
     `;
 
-    // Set the content and wait for it to load
+    // Set content with better error handling
     await page.setContent(htmlWithStyles, {
-      waitUntil: ["load", "networkidle0", "domcontentloaded"],
+      waitUntil: ["networkidle0", "domcontentloaded"],
       timeout: 30000,
     });
 
-    // Wait for fonts to load
-    await page.evaluateHandle("document.fonts.ready");
-
-    // Clean up text content
-    await page.evaluate(() => {
-      // Remove multiple spaces
-      // const paragraphs = document.querySelectorAll('p');
-      // paragraphs.forEach(p => {
-      //   p.textContent = p.textContent.replace(/\s+/g, ' ').trim();
-      // });
-      // Remove the line break conversion since Lexical already handles them correctly
-      // const content = document.body.innerHTML;
-      // document.body.innerHTML = content.replace(/\n/g, '<br>');
-    });
-
-    // Add script to convert grid layouts to flex
-    await page.evaluate(() => {
-      const gridElements = document.querySelectorAll('[style*="grid-template-columns"]');
-      gridElements.forEach((element) => {
-        const gridTemplate = element.style.gridTemplateColumns;
-        
-        // Handle specific 1fr 3fr ratio
-        if (gridTemplate === '1fr 3fr') {
-          element.style.display = 'flex';
-          element.style.flexWrap = 'wrap';
-          element.style.gap = '20px';
-    
-          // Convert grid children with exact ratio
-          Array.from(element.children).forEach((child, index) => {
-            if (index === 0) {
-              // First column (1fr)
-              child.style.flex = '1 1 calc(25% - 10px)';
-              child.style.minWidth = 'calc(25% - 10px)';
-            } else {
-              // Second column (3fr)
-              child.style.flex = '3 3 calc(75% - 10px)';
-              child.style.minWidth = 'calc(75% - 10px)';
-            }
-          });
-        } else {
-          // Handle other grid layouts as before
-          const columns = gridTemplate.split(' ').length;
-          element.style.display = 'flex';
-          element.style.flexWrap = 'wrap';
-          element.style.gap = '20px';
-    
-          Array.from(element.children).forEach((child) => {
-            child.style.flex = `1 1 calc(${100 / columns}% - ${((columns - 1) * 20) / columns}px)`;
-            child.style.minWidth = `calc(${100 / columns}% - ${((columns - 1) * 20) / columns}px)`;
-          });
-        }
-      });
-    });
+    // Wait for fonts and resources to load
+    await Promise.all([
+      page.evaluateHandle("document.fonts.ready"),
+      page.waitForFunction(() => document.readyState === 'complete', { timeout: 5000 })
+    ]);
 
     // Generate PDF with better settings
     const pdf = await page.pdf({
@@ -125,9 +114,9 @@ export async function POST(request) {
       preferCSSPageSize: true,
     });
 
+    await page.close();
     await browser.close();
 
-    // Return the PDF
     return new Response(pdf, {
       headers: {
         "Content-Type": "application/pdf",
@@ -149,5 +138,13 @@ export async function POST(request) {
         },
       }
     );
+  } finally {
+    if (browser) {
+      try {
+        await browser.close();
+      } catch (closeError) {
+        console.error("Failed to close browser:", closeError);
+      }
+    }
   }
 }
