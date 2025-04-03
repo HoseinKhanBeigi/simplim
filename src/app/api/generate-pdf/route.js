@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import puppeteer from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer';
 
 export const runtime = "nodejs";
 export const maxDuration = 30; // Set max duration to 30 seconds to match Vercel's limit
@@ -10,15 +9,10 @@ export async function POST(req) {
     // Get the HTML content from the request
     const { html } = await req.json();
     
-    // Use a direct approach to get the executable path
-    const executablePath = process.env.CHROME_EXECUTABLE_PATH || '/tmp/chromium';
-    console.log('Using executable path:', executablePath);
-    
-    // Launch browser with minimal configuration
+    // Launch browser with default configuration
     const browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox', '--hide-scrollbars', '--disable-web-security'],
-      executablePath: executablePath,
-      headless: true,
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
     });
     
     const page = await browser.newPage();
