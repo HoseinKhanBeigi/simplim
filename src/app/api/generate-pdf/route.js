@@ -1,7 +1,6 @@
-// import puppeteer from "puppeteer";
+import puppeteer from "puppeteer";
 // import puppeteer from "puppeteer-core";
 // import chromium from "chrome-aws-lambda";
-import html2pdf from 'html2pdf.js';
 
 export const runtime = "nodejs";
 export const maxDuration = 30; // Set max duration to 30 seconds to match Vercel's limit
@@ -10,52 +9,36 @@ export async function POST(request) {
   try {
     const { html } = await request.json();
 
-    console.log("Starting PDF generation with html2pdf.js...");
+    console.log("Starting PDF generation with Puppeteer...");
 
-    // Add default styles for better rendering
-    const htmlWithStyles = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="UTF-8">
-          <style>
-            body {
-              font-family: Arial, sans-serif;
-              margin: 0;
-              padding: 20px;
-            }
-            @page {
-              size: A4;
-              margin: 0;
-            }
-          </style>
-        </head>
-        <body>
-          ${html}
-        </body>
-      </html>
-    `;
+    // Launch a new browser instance
+    const browser = await puppeteer.launch({
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
 
-    // Configure PDF options
-    const options = {
-      margin: 0,
-      filename: 'document.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { 
-        scale: 2,
-        useCORS: true,
-        logging: false
-      },
-      jsPDF: { 
-        unit: 'mm', 
-        format: 'a4', 
-        orientation: 'portrait' 
-      },
-      pagebreak: { mode: 'avoid-all' }
-    };
+    // Create a new page
+    const page = await browser.newPage();
+
+    // Set the content
+    await page.setContent(html, {
+      waitUntil: 'networkidle0'
+    });
 
     // Generate PDF
-    const pdf = await html2pdf().from(htmlWithStyles).set(options).outputPdf('arraybuffer');
+    const pdf = await page.pdf({
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '20px',
+        right: '20px',
+        bottom: '20px',
+        left: '20px'
+      }
+    });
+
+    // Close the browser
+    await browser.close();
 
     return new Response(pdf, {
       headers: {
