@@ -19,7 +19,7 @@ export async function POST(request) {
     const launchOptions = isVercel
       ? {
           executablePath: await chromium.executablePath,
-          args: [...chromium.args, '--no-sandbox'],
+          args: chromium.args,
           defaultViewport: chromium.defaultViewport,
           headless: chromium.headless,
           ignoreHTTPSErrors: true,
