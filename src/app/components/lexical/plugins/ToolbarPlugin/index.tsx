@@ -537,6 +537,32 @@ export default function ToolbarPlugin({
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
   const {toolbarState, updateToolbarState} = useToolbarState();
 
+  // Add scroll detection for the toolbar
+  useEffect(() => {
+    const toolbar = document.querySelector('.toolbar');
+    if (!toolbar) return;
+    
+    const handleScroll = () => {
+      // Check if scrolled to the end
+      const isScrolledToEnd = 
+        toolbar.scrollLeft + toolbar.clientWidth >= toolbar.scrollWidth - 10;
+      
+      if (isScrolledToEnd) {
+        toolbar.classList.add('scrolled-end');
+      } else {
+        toolbar.classList.remove('scrolled-end');
+      }
+    };
+    
+    toolbar.addEventListener('scroll', handleScroll);
+    // Initial check
+    handleScroll();
+    
+    return () => {
+      toolbar.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
   const $updateToolbar = useCallback(() => {
     const selection = $getSelection();
     if ($isRangeSelection(selection)) {

@@ -32,7 +32,7 @@ const AppLayout = () => {
     { content: "Select text to get insights.", source: null },
   ]);
   const [isResizing, setIsResizing] = useState(false);
-  const [leftPanelWidth, setLeftPanelWidth] = useState(50); // percentage
+  const [leftPanelWidth, setLeftPanelWidth] = useState(60); // percentage
   const [pdfsEdited, setPdfsEdited] = useState(0);
   const MAX_FREE_PDFS = 5;
   const [isEditing, setIsEditing] = useState(false);

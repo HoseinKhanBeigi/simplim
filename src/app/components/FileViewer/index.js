@@ -97,7 +97,7 @@ function FileViewer({
           <div 
             ref={containerRef}
             className="relative pdf-viewer select-none"
-            style={{ cursor: "text" }}
+            style={{ cursor: "text" ,display: "flex",justifyContent: "center",alignItems: "center"}}
           >
             <Document
               file={file.url}
