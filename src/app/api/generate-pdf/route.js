@@ -1,5 +1,5 @@
-import puppeteer from "puppeteer";
-// import puppeteer from "puppeteer-core";
+// import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
 // import chromium from "chrome-aws-lambda";
 
 export const runtime = "nodejs";
