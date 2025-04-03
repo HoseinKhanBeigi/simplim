@@ -13,7 +13,7 @@ export async function POST(request) {
     console.log("Starting PDF generation...");
 
     // Determine if we're running in Vercel or local environment
-    const isVercel = process.env.VERCEL === '1';
+    const isVercel = true
     
     // Configure browser launch options based on environment
     const launchOptions = isVercel
