@@ -3,7 +3,7 @@ import puppeteer from "puppeteer-core";
 import chromium from "chrome-aws-lambda";
 
 export const runtime = "nodejs";
-export const maxDuration = 60; // Set max duration to 60 seconds
+export const maxDuration = 30; // Set max duration to 30 seconds to match Vercel's limit
 
 export async function POST(request) {
   let browser = null;
