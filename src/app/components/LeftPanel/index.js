@@ -4,6 +4,15 @@ import React, { useState, useRef } from "react";
 import { toast } from "react-hot-toast";
 import ControllerNav from "../Navigation";
 import UploadArea from "../Upload";
+
+import { pdfjs } from "react-pdf";
+import "react-pdf/dist/esm/Page/TextLayer.css";
+import "react-pdf/dist/esm/Page/AnnotationLayer.css";
+
+// Configure worker
+if (typeof window !== "undefined") {
+  pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+}
 // import { usePDF } from "../lexical/context/PDFContext";
 
 const LeftPanel = ({
@@ -69,6 +78,19 @@ const LeftPanel = ({
 
   const handleFileUpload = (type) => async (event) => {
     const file = event.target.files?.[0];
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjs.getDocument(arrayBuffer).promise;
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const text = content.items.map(item => item.str).join(' ');
+      console.log(text);
+      // const simplified = simplifier ? (await simplifier(text, { max_length: 200 }))[0].generated_text : text;
+
+      // Simple heuristic: assume first line or bold text is a title
+      // const title = content.items.find(item => item.fontName.includes('Bold') || item.height > 12)?.str || `Page ${i}`;
+      // items.push({ title, simplified, page: i });
+    }
     if (!file) return;
 
     try {

@@ -156,6 +156,7 @@ const AppLayout = () => {
 
       // Set new file
       setCurrentFile(fileData);
+      
     } catch (error) {
       toast.error("Error uploading file. Please try again.");
       console.error("File upload error:", error);

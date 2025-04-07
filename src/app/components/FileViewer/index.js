@@ -42,6 +42,8 @@ function FileViewer({
 
       // Process text content with positioning
       let textItems = [];
+
+   
       textContent.items.forEach((textItem) => {
         textItems.push({
           text: textItem.str,

@@ -27,37 +27,37 @@ export default function PDFExportPlugin(): null {
         // console.log('htmlContent', htmlContent);
 
         // Call our API endpoint to generate PDF
-        // fetch('/api/generate-pdf', {
-        //   method: 'POST',
-        //   headers: {
-        //     'Content-Type': 'application/json',
-        //   },
-        //   body: JSON.stringify({ html: htmlContent }),
-        // })
-        // .then(response => {
-        //   if (!response.ok) {
-        //     throw new Error('Failed to generate PDF');
-        //   }
-        //   return response.blob();
-        // })
-        // .then(blob => {
-        //   // Create a URL for the blob
-        //   const url = window.URL.createObjectURL(blob);
+        fetch('https://pdf-production-00ea.up.railway.app/pdf/generate-from-html-with-options', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ html: htmlContent }),
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to generate PDF');
+          }
+          return response.blob();
+        })
+        .then(blob => {
+          // Create a URL for the blob
+          const url = window.URL.createObjectURL(blob);
           
-        //   // Create a temporary link and click it to download the PDF
-        //   const link = document.createElement('a');
-        //   link.href = url;
-        //   link.download = 'document.pdf';
-        //   document.body.appendChild(link);
-        //   link.click();
+          // Create a temporary link and click it to download the PDF
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'document.pdf';
+          document.body.appendChild(link);
+          link.click();
           
-        //   // Clean up
-        //   document.body.removeChild(link);
-        //   window.URL.revokeObjectURL(url);
-        // })
-        // .catch(error => {
-        //   console.error('Error generating PDF:', error);
-        // });
+          // Clean up
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(url);
+        })
+        .catch(error => {
+          console.error('Error generating PDF:', error);
+        });
 
         return true;
       },
