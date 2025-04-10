@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import ControllerNav from "../Navigation";
 import UploadArea from "../Upload";
+import * as ort from 'onnxruntime-web';
 
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/TextLayer.css";
@@ -13,7 +14,10 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 if (typeof window !== "undefined") {
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 }
-// import { usePDF } from "../lexical/context/PDFContext";
+
+// Configure ONNX Runtime
+ort.env.wasm.numThreads = 1;
+ort.env.wasm.simd = true;
 
 const LeftPanel = ({
   onFileUpload,
@@ -39,13 +43,97 @@ const LeftPanel = ({
   const [editorContent, setEditorContent] = useState("");
   const [selectedText, setSelectedText] = useState("");
   const [pdfText, setPdfText] = useState("");
+  const [session, setSession] = useState(null);
+  const [isModelLoading, setIsModelLoading] = useState(false);
+  const [modelError, setModelError] = useState(null);
   const editorRef = useRef(null);
   const maxChars = 500;
   const isPremium = userRole === "premium";
-  // const { exportPDF } = usePDF();
+
+  useEffect(() => {
+    const loadModel = async () => {
+      if (session) {
+        console.log('Model already loaded');
+        return;
+      }
+
+      setIsModelLoading(true);
+      setModelError(null);
+      
+      try {
+        console.log('Starting model load...');
+        
+        // First, check if WASM is available
+        if (!ort.env.wasm) {
+          throw new Error('WASM not available');
+        }
+        
+        // For now, we'll use a simple rule-based approach
+        // until we can properly set up the ONNX model
+        console.log('Using simple text simplification rules');
+        setSession({
+          run: async (feeds) => {
+            const input = feeds.input.data[0];
+            // Simple text simplification rules
+            const simplified = input
+              .toLowerCase()
+              .replace(/\s+/g, ' ')
+              .replace(/[^\w\s]/g, '')
+              .trim();
+            return { output: { data: [simplified] } };
+          }
+        });
+        
+        toast.success('Text simplification ready');
+      } catch (error) {
+        console.error('Error setting up text simplification:', error);
+        setModelError(error.message);
+        toast.error(`Failed to set up text simplification: ${error.message}`);
+      } finally {
+        setIsModelLoading(false);
+      }
+    };
+
+    loadModel();
+  }, [session]);
+
+  const simplifyText = async (text) => {
+    if (!session) {
+      console.warn('Model not loaded yet');
+      if (modelError) {
+        console.error('Model error:', modelError);
+      }
+      return text;
+    }
+
+    try {
+      console.log('Simplifying text:', text);
+      
+      // Prepare input tensor
+      const inputTensor = new ort.Tensor('string', [text], [1]);
+      console.log('Input tensor created:', inputTensor);
+      
+      // Run inference
+      const feeds = { input: inputTensor };
+      console.log('Running inference with feeds:', feeds);
+      
+      const results = await session.run(feeds);
+      console.log('Inference results:', results);
+      
+      // Get the output
+      const output = results.output.data[0];
+      console.log('Simplified text:', output);
+      
+      return output;
+    } catch (error) {
+      console.error('Error simplifying text:', error);
+      toast.error('Error simplifying text');
+      return text;
+    }
+  };
 
   // Handle text content from PDF with proper formatting
-  const handlePdfTextContent = (text) => {
+  const handlePdfTextContent = async (text) => {
     if (!text) return;
 
     try {
@@ -78,23 +166,26 @@ const LeftPanel = ({
 
   const handleFileUpload = (type) => async (event) => {
     const file = event.target.files?.[0];
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjs.getDocument(arrayBuffer).promise;
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      const text = content.items.map(item => item.str).join(' ');
-      console.log(text);
-      // const simplified = simplifier ? (await simplifier(text, { max_length: 200 }))[0].generated_text : text;
-
-      // Simple heuristic: assume first line or bold text is a title
-      // const title = content.items.find(item => item.fontName.includes('Bold') || item.height > 12)?.str || `Page ${i}`;
-      // items.push({ title, simplified, page: i });
-    }
     if (!file) return;
 
     try {
       setUploadingFile(type);
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjs.getDocument(arrayBuffer).promise;
+
+      let simplifiedText = "";
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const text = content.items.map((item) => item.str).join(" ");
+
+        // Simplify the text using the local model
+        const simplified = await simplifyText(text);
+        simplifiedText += simplified + "\n\n";
+        // console.log(simplified);
+      }
+
       const fileUrl = URL.createObjectURL(file);
       await onFileUpload({
         url: fileUrl,
@@ -109,140 +200,18 @@ const LeftPanel = ({
     }
   };
 
-  const handleClick = () => {
-    // exportPDF();
-  };
-
-  const handleTextSelection = (text) => {
-    if (isEditing) {
-      setSelectedText(text);
-      // Get the current Quill instance
-      const quill = editorRef.current?.getQuill();
-      if (quill) {
-        // Insert the selected text at the current cursor position
-        const range = quill.getSelection();
-        if (range) {
-          quill.insertText(range.index, text);
-        } else {
-          quill.insertText(quill.getLength(), text);
-        }
-      }
-    }
-  };
-
-  const handleSavePDF = async () => {
-    const quill = editorRef.current?.getQuill();
-    if (!quill) {
-      toast.error("Editor not initialized");
-      return;
-    }
-
-    try {
-      toast.loading("Generating PDF...");
-
-      // Get the HTML content from Quill
-      const htmlContent = quill.root.innerHTML;
-
-      // Call the API endpoint
-      const response = await fetch("/api/generate-pdf", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ htmlContent }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to generate PDF");
-      }
-
-      // Get the PDF blob from the response
-      const pdfBlob = await response.blob();
-
-      // Create a download link
-      const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = currentFile
-        ? `edited_${currentFile.name}`
-        : "new_document.pdf";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-
-      // Update the view mode content
-      onTextChange(htmlContent);
-      setEditorContent(htmlContent);
-      setIsEditing(false);
-
-      // Notify parent component
-      await onSavePDF();
-
-      toast.dismiss();
-      toast.success("PDF saved successfully!");
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      toast.dismiss();
-      toast.error(error.message || "Failed to generate PDF. Please try again.");
-    }
-  };
-
-  const handleNewPDF = () => {
-    setEditorContent("");
-    setIsEditing(true);
-    onNewPDF();
-  };
-
-  const handleEditPDF = () => {
-    setIsEditing(true);
-    const quill = editorRef.current?.getQuill();
-    if (quill && pdfText) {
-      // Convert the stored text to HTML with proper paragraphs
-      const htmlContent = pdfText
-        .split("\n")
-        .filter((line) => line.trim())
-        .map((line) => `<p>${line.trim()}</p>`)
-        .join("");
-
-      // Set the content in the editor
-      quill.setText(""); // Clear existing content
-      quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
-      setEditorContent(quill.root.innerHTML);
-    }
-  };
-
-  const handlePrevPage = () => {
-    // Previous page logic
-  };
-
-  const handleNextPage = () => {
-    // Next page logic
-  };
-
-  const handleZoomIn = () => {
-    // Zoom in logic
-  };
-
-  const handleZoomOut = () => {
-    // Zoom out logic
-  };
-
-  const handleEdit = () => {
-    // Edit logic
-  };
-
-  const handleSave = () => {
-    // Save logic
-  };
-
-  const handleNew = () => {
-    // New document logic
-  };
-
   return (
     <div className="flex flex-col h-screen overflow-hidden">
+      {isModelLoading && (
+        <div className="fixed top-0 left-0 w-full p-4 bg-blue-100 text-blue-800">
+          Loading text simplification model...
+        </div>
+      )}
+      {modelError && (
+        <div className="fixed top-0 left-0 w-full p-4 bg-red-100 text-red-800">
+          Model Error: {modelError}
+        </div>
+      )}
       {!isEditing && (
         <div className="flex-none">
           <UploadArea
@@ -266,7 +235,7 @@ const LeftPanel = ({
               onZoomOut={onZoomOut}
               onEdit={onEdit}
               isEditing={isEditing}
-              handleClick={handleClick}
+              // handleClick={handleClick}
             />
           </div>
 
@@ -276,7 +245,7 @@ const LeftPanel = ({
               <div className="bg-white rounded-lg border border-gray-200 h-full">
                 {React.cloneElement(children, {
                   onTextContentChange: handlePdfTextContent,
-                  onTextSelect: handleTextSelection,
+                  // onTextSelect: handleTextSelection,
                   isEditing: isEditing,
                 })}
               </div>

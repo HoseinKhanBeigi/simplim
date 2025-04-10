@@ -37,6 +37,7 @@
     "lodash-es": "^4.17.21",
     "next": "13.4.19",
     "npm": "^11.2.0",
+    "onnxruntime-web": "^1.22.0-dev.20250306-ccf8fdd9ea",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^3.11.174",
     "pdfmake": "^0.2.18",

@@ -20,12 +20,12 @@ export default function PDFExportPlugin(): null {
           const editorElement = document.querySelector('.editor-shell');
           if (editorElement) {
             htmlElement.innerHTML = editorElement?.children[1]?.children[0]?.children[0].innerHTML;
+    
             htmlContent = htmlElement.outerHTML;
           }
         });
 
-        // console.log('htmlContent', htmlContent);
-
+        console.log('htmlContent', htmlContent);
         // Call our API endpoint to generate PDF
         fetch('https://pdf-production-00ea.up.railway.app/pdf/generate-from-html-with-options', {
           method: 'POST',
