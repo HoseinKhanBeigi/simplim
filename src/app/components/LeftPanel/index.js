@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import ControllerNav from "../Navigation";
 import UploadArea from "../Upload";
-import * as ort from 'onnxruntime-web';
+import * as ort from "onnxruntime-web";
 
 import { pdfjs } from "react-pdf";
 import "react-pdf/dist/esm/Page/TextLayer.css";
@@ -50,120 +50,6 @@ const LeftPanel = ({
   const maxChars = 500;
   const isPremium = userRole === "premium";
 
-  useEffect(() => {
-    const loadModel = async () => {
-      if (session) {
-        console.log('Model already loaded');
-        return;
-      }
-
-      setIsModelLoading(true);
-      setModelError(null);
-      
-      try {
-        console.log('Starting model load...');
-        
-        // First, check if WASM is available
-        if (!ort.env.wasm) {
-          throw new Error('WASM not available');
-        }
-        
-        // For now, we'll use a simple rule-based approach
-        // until we can properly set up the ONNX model
-        console.log('Using simple text simplification rules');
-        setSession({
-          run: async (feeds) => {
-            const input = feeds.input.data[0];
-            // Simple text simplification rules
-            const simplified = input
-              .toLowerCase()
-              .replace(/\s+/g, ' ')
-              .replace(/[^\w\s]/g, '')
-              .trim();
-            return { output: { data: [simplified] } };
-          }
-        });
-        
-        toast.success('Text simplification ready');
-      } catch (error) {
-        console.error('Error setting up text simplification:', error);
-        setModelError(error.message);
-        toast.error(`Failed to set up text simplification: ${error.message}`);
-      } finally {
-        setIsModelLoading(false);
-      }
-    };
-
-    loadModel();
-  }, [session]);
-
-  const simplifyText = async (text) => {
-    if (!session) {
-      console.warn('Model not loaded yet');
-      if (modelError) {
-        console.error('Model error:', modelError);
-      }
-      return text;
-    }
-
-    try {
-      console.log('Simplifying text:', text);
-      
-      // Prepare input tensor
-      const inputTensor = new ort.Tensor('string', [text], [1]);
-      console.log('Input tensor created:', inputTensor);
-      
-      // Run inference
-      const feeds = { input: inputTensor };
-      console.log('Running inference with feeds:', feeds);
-      
-      const results = await session.run(feeds);
-      console.log('Inference results:', results);
-      
-      // Get the output
-      const output = results.output.data[0];
-      console.log('Simplified text:', output);
-      
-      return output;
-    } catch (error) {
-      console.error('Error simplifying text:', error);
-      toast.error('Error simplifying text');
-      return text;
-    }
-  };
-
-  // Handle text content from PDF with proper formatting
-  const handlePdfTextContent = async (text) => {
-    if (!text) return;
-
-    try {
-      // Store the raw text with line breaks preserved
-      setPdfText(text);
-
-      // If we're in editing mode, update the editor content
-      if (isEditing && editorRef.current?.getQuill()) {
-        const quill = editorRef.current.getQuill();
-
-        // Convert the text to HTML with proper paragraphs
-        const htmlContent = text
-          .split("\n")
-          .filter((line) => line.trim())
-          .map((line) => `<p>${line.trim()}</p>`)
-          .join("");
-
-        // Insert the formatted content into the editor
-        quill.setText(""); // Clear existing content
-        quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
-
-        // Update the editor content state
-        setEditorContent(quill.root.innerHTML);
-      }
-    } catch (error) {
-      console.error("Error processing PDF text:", error);
-      toast.error("Error processing PDF text");
-    }
-  };
-
   const handleFileUpload = (type) => async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -173,30 +59,184 @@ const LeftPanel = ({
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjs.getDocument(arrayBuffer).promise;
 
-      let simplifiedText = "";
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        const text = content.items.map((item) => item.str).join(" ");
-
-        // Simplify the text using the local model
-        const simplified = await simplifyText(text);
-        simplifiedText += simplified + "\n\n";
-        // console.log(simplified);
-      }
-
+      // First, just upload the file with basic info
       const fileUrl = URL.createObjectURL(file);
       await onFileUpload({
         url: fileUrl,
         name: file.name,
         type: type,
+        numPages: pdf.numPages,
+        currentPage: 1
       });
+
+      // Start processing in the background
+      processPDF(pdf, fileUrl, file.name, type);
     } catch (error) {
-      console.error("Error uploading file:", error);
-      toast.error("Failed to upload file");
+      console.error("Upload error:", error);
+      toast.error(`Failed to upload file: ${error.message}`);
     } finally {
       setUploadingFile(null);
+    }
+  };
+  function isTitleLine(line, nextLine = '') {
+    line = line.trim();
+    
+    // Pattern 1: Numbered titles (e.g., "1. Introduction" or "1) Overview")
+    const numberedPattern = /^\d{1,2}[.)]\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s{2,}/;
+    if (numberedPattern.test(line)) return true;
+    
+    // Pattern 2: ALL CAPS titles with double space
+    const allCapsPattern = /^[A-Z\s]{5,}\s{2,}/;
+    if (allCapsPattern.test(line)) return true;
+    
+    // Pattern 3: Short capitalized line followed by lowercase text
+    const shortTitlePattern = /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*$/;
+    if (shortTitlePattern.test(line) && nextLine && /^[a-z]/.test(nextLine.trim())) {
+      return true;
+    }
+    
+    // Pattern 4: Title with colon (e.g., "Introduction:")
+    const colonTitlePattern = /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s*:/;
+    if (colonTitlePattern.test(line)) return true;
+    
+    // Pattern 5: Section headers with special characters
+    const sectionHeaderPattern = /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s*[-–—]\s*[A-Z][a-z]+/;
+    if (sectionHeaderPattern.test(line)) return true;
+    
+    // Pattern 6: Title with double space in middle
+    const doubleSpacePattern = /^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s{2,}[A-Z][a-z]+/;
+    if (doubleSpacePattern.test(line)) return true;
+    
+    // Pattern 7: Roman numeral titles (e.g., "I. Introduction")
+    const romanNumeralPattern = /^[IVX]+\.\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*/;
+    if (romanNumeralPattern.test(line)) return true;
+    
+    return false;
+  }
+
+  function detectParagraphSubject(text) {
+    const patterns = [
+      // Pattern 1: First sentence with key terms
+      /^[A-Z][^.!?]+(?:because|therefore|thus|hence|consequently|however|but|although|while|whereas)[^.!?]+[.!?]/,
+      
+      // Pattern 2: Questions as subjects
+      /^[A-Z][^.!?]+\?/,
+      
+      // Pattern 3: Definitions or explanations
+      /^[A-Z][^.!?]+(?:is|are|was|were|means|refers to|defined as)[^.!?]+[.!?]/,
+      
+      // Pattern 4: Lists or enumerations
+      /^[A-Z][^.!?]+(?:first|second|third|finally|additionally|moreover|furthermore)[^.!?]+[.!?]/,
+      
+      // Pattern 5: Contrast or comparison
+      /^[A-Z][^.!?]+(?:compared to|unlike|similar to|in contrast to)[^.!?]+[.!?]/
+    ];
+
+    const sentences = text.split(/[.!?]+/).map(s => s.trim()).filter(s => s.length > 0);
+    
+    for (const sentence of sentences) {
+      for (const pattern of patterns) {
+        if (pattern.test(sentence)) {
+          return sentence;
+        }
+      }
+    }
+    
+    // If no pattern matches, return the first sentence
+    return sentences[0] || '';
+  }
+
+  function detectTitlesFromText(rawText) {
+    const lines = splitToLines(rawText);
+    const titles = [];
+    const subjects = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const nextLine = lines[i + 1] || '';
+      
+      if (isTitleLine(line, nextLine)) {
+        titles.push({
+          type: 'title',
+          content: line.trim(),
+          position: i
+        });
+      }
+      
+      // Detect paragraph subjects
+      const subject = detectParagraphSubject(line);
+      if (subject && subject.length > 0) {
+        subjects.push({
+          type: 'subject',
+          content: subject,
+          position: i
+        });
+      }
+    }
+
+    return {
+      titles,
+      subjects
+    };
+  }
+
+  // 💡 Split by period or newline, then trim
+  function splitToLines(text) {
+    return text
+      .replace(/\n/g, ' ')
+      .split(/(?<=\.|\?|\!)\s+/)
+      .map(line => line.trim())
+      .filter(line => line.length > 0);
+  }
+  
+  // 🧪 Process full raw text
+  function detectTitlesFromText(rawText) {
+
+    const lines = splitToLines(rawText);
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      const nextLine = lines[i + 1] || '';
+
+      if (isTitleLine(line, nextLine)) {
+
+        console.log(`[TITLE] ${line}`);
+      }
+    }
+  }
+  
+  const processPDF = async (pdf, fileUrl, fileName, type) => {
+    try {
+      const pageSummaries = [];
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        try {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          const text = content.items.map((item) => item.str).join(" ");
+
+          // Detect titles and subjects
+          const { titles, subjects } = detectTitlesFromText(text);
+          
+          pageSummaries.push({
+            page: i,
+            titles: titles.map(t => t.content),
+            subjects: subjects.map(s => s.content),
+            text: text
+          });
+
+          toast.success(`Processed page ${i} of ${pdf.numPages}`);
+        } catch (pageError) {
+          console.error(`Error processing page ${i}:`, pageError);
+          continue;
+        }
+      }
+
+  
+      toast.success("PDF processing complete!");
+    } catch (error) {
+      console.error("Processing error:", error);
+      toast.error("Error processing PDF");
     }
   };
 
@@ -244,7 +284,7 @@ const LeftPanel = ({
             <div className="absolute inset-0 p-4">
               <div className="bg-white rounded-lg border border-gray-200 h-full">
                 {React.cloneElement(children, {
-                  onTextContentChange: handlePdfTextContent,
+                  // onTextContentChange: handlePdfTextContent,
                   // onTextSelect: handleTextSelection,
                   isEditing: isEditing,
                 })}
