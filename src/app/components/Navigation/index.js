@@ -1,10 +1,5 @@
 import React from "react";
 
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { EXPORT_PDF_COMMAND } from "../lexical/plugins/PDFExportPlugin"; // adjust path as needed
-
-
-
 const ControllerNav = ({
   fileType,
   currentPage,
