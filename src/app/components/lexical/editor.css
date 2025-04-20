@@ -58,12 +58,13 @@
 }
 
 .toolbar {
+  margin-top: 16px;
   display: flex;
   /* margin: 8px; */
   border-radius: 8px;
   /* flex-wrap: wrap; */
   margin-bottom: 1px;
-  background: darkseagreen;
+  background: rgb(255, 255, 255);
   padding: 8px;
   vertical-align: middle;
   overflow: auto;
@@ -78,11 +79,11 @@
   box-sizing: border-box;
   /* Add visual indicators for horizontal scrolling */
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.5) transparent;
-  /* Add a subtle shadow to indicate more content */
-  box-shadow: inset -10px 0 10px -10px rgba(0, 0, 0, 0.2);
+  scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+
   /* Add a subtle gradient to indicate scrollable content */
-  background-image: linear-gradient(to right, darkseagreen, darkseagreen 95%, rgba(143, 188, 143, 0.8));
+  /* background-image: linear-gradient(to right, rgb(255, 255, 255), rgb(197, 197, 197) 95%, rgba(180, 180, 180, 0.8)); */
   background-size: 100% 100%;
   background-repeat: no-repeat;
   /* Add position relative for the scroll indicator */

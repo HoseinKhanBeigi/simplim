@@ -6,8 +6,10 @@ import AuthLayout from "../AuthLayout";
 import LeftPanel from "../LeftPanel";
 import AIInsightsPanel from "../AIInsightsPanel";
 import FileViewer from "../FileViewer";
+import ExcalidrawViewer from "../ExcalidrawViewer";
 import { Toaster, toast } from "react-hot-toast";
 import dynamic from "next/dynamic";
+import { savePDF, getAllPDFs, deletePDF, getPDF } from "../../utils/db";
 
 // Dynamically import PlaygroundApp with no SSR
 const PlaygroundApp = dynamic(() => import("../lexical/App"), {
@@ -23,6 +25,7 @@ const AppLayout = () => {
   const [user, setUser] = useState(null);
   const [selectedText, setSelectedText] = useState("");
   const [currentFile, setCurrentFile] = useState(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
   const [textContent, setTextContent] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -34,6 +37,7 @@ const AppLayout = () => {
   const [isResizing, setIsResizing] = useState(false);
   const [leftPanelWidth, setLeftPanelWidth] = useState(60); // percentage
   const [pdfsEdited, setPdfsEdited] = useState(0);
+  const [activeTab, setActiveTab] = useState("viewer"); // 'viewer' or 'draw'
   const MAX_FREE_PDFS = 5;
   const [isEditing, setIsEditing] = useState(false);
 
@@ -46,10 +50,8 @@ const AppLayout = () => {
   const handleMouseMove = useCallback(
     (e) => {
       if (!isResizing) return;
-
       const windowWidth = window.innerWidth;
       const newWidth = (e.clientX / windowWidth) * 100;
-
       // Limit the resize between 30% and 70%
       if (newWidth >= 30 && newWidth <= 70) {
         setLeftPanelWidth(newWidth);
@@ -99,6 +101,22 @@ const AppLayout = () => {
     };
   }, [pdfInstance]);
 
+  // Load PDFs from IndexedDB on component mount
+  useEffect(() => {
+    const loadPDFs = async () => {
+      try {
+        const pdfs = await getAllPDFs();
+        setUploadedFiles(pdfs);
+        if (pdfs.length > 0) {
+          setCurrentFile(pdfs[0]);
+        }
+      } catch (error) {
+        console.error("Error loading PDFs:", error);
+      }
+    };
+    loadPDFs();
+  }, []);
+
   const handleLogin = async ({ email, password }) => {
     try {
       // TODO: Implement actual authentication
@@ -133,6 +151,7 @@ const AppLayout = () => {
       pdfInstance.cleanup();
       pdfInstance.destroy();
     }
+    // Note: We don't clear IndexedDB on logout to persist files between sessions
   };
 
   const handleFileUpload = async (fileData) => {
@@ -156,10 +175,126 @@ const AppLayout = () => {
 
       // Set new file
       setCurrentFile(fileData);
-      
     } catch (error) {
       toast.error("Error uploading file. Please try again.");
       console.error("File upload error:", error);
+    }
+  };
+
+  // const handleFileUpload = async (fileData) => {
+
+  //   try {
+  //     if (!fileData || !fileData.file) {
+  //       throw new Error("Invalid file data");
+  //     }
+
+  //     // Get the file content
+  //     const fileContent = await fileData.file.arrayBuffer();
+
+  //     // Create a new file data object for storage
+  //     const fileDataToStore = {
+  //       url: fileData.url,
+  //       name: fileData.name,
+  //       type: fileData.type,
+  //       numPages: fileData.numPages,
+  //       currentPage: 1,
+  //     };
+
+  //     // Save to IndexedDB
+  //     // await savePDF(fileDataToStore, fileContent);
+
+  //     // Update state
+  //     // setUploadedFiles(prevFiles => [...prevFiles, fileDataToStore]);
+  //     setCurrentFile(fileData);
+  //     // setCurrentPage(1);
+  //     // setTotalPages(fileDataToStore.numPages);
+  //     // setScale(1.2);
+  //     // setSelectedText("");
+  //   } catch (error) {
+  //     console.error("File upload error:", error);
+  //     // Clean up the URL if it was created
+  //     if (fileData?.url) {
+  //       URL.revokeObjectURL(fileData.url);
+  //     }
+  //     toast.error("Error uploading file. Please try again.");
+  //   }
+  // };
+
+  const handleSwitchFile = async (file) => {
+    try {
+      // Clean up previous file URL if it exists
+      if (currentFile?.url) {
+        URL.revokeObjectURL(currentFile.url);
+      }
+
+      // Clean up previous PDF instance
+      if (pdfInstance) {
+        pdfInstance.cleanup();
+        pdfInstance.destroy();
+      }
+
+      // Get the file from IndexedDB
+      const storedFile = await getPDF(file.url);
+
+      // Create a new Blob URL for the content
+      const blob = new Blob([storedFile.content], { type: "application/pdf" });
+      const newUrl = URL.createObjectURL(blob);
+
+      // Set new file as current
+      setCurrentFile({
+        ...storedFile,
+        url: newUrl,
+      });
+      setCurrentPage(1);
+      setTotalPages(storedFile.numPages);
+      setScale(1.2);
+      setSelectedText("");
+    } catch (error) {
+      console.error("Error switching file:", error);
+      toast.error("Error switching file. Please try again.");
+    }
+  };
+
+  const handleRemoveFile = async (fileToRemove) => {
+    if (!fileToRemove || !fileToRemove.url) {
+      console.error("Invalid file to remove");
+      return;
+    }
+
+    try {
+      // First, get the remaining files before updating state
+      const remainingFiles = uploadedFiles.filter(
+        (file) => file.url !== fileToRemove.url
+      );
+
+      // If we're removing the current file, switch to another one first
+      if (currentFile?.url === fileToRemove.url) {
+        if (remainingFiles.length > 0) {
+          // Switch to the first remaining file
+          const nextFile = remainingFiles[0];
+          setCurrentFile(nextFile);
+          setCurrentPage(1);
+          setTotalPages(nextFile.numPages);
+        } else {
+          setCurrentFile(null);
+        }
+      }
+
+      // Update the uploaded files state
+      setUploadedFiles(remainingFiles);
+
+      // Clean up the file URL
+      if (fileToRemove.url) {
+        URL.revokeObjectURL(fileToRemove.url);
+      }
+
+      // Delete from IndexedDB
+      await deletePDF(fileToRemove.url);
+    } catch (error) {
+      console.error("Error removing file:", error);
+      // If there's an error, try to restore the file in the state
+      setUploadedFiles((prevFiles) => [...prevFiles, fileToRemove]);
+      toast.error("Error removing file. Please try again.");
     }
   };
 
@@ -283,7 +418,14 @@ const AppLayout = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Toaster position="top-right" />
-      <Header user={user} onLogout={handleLogout} onUpgrade={handleUpgrade} />
+      <Header
+        user={user}
+        onLogout={handleLogout}
+        onUpgrade={handleUpgrade}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onFileUpload={handleFileUpload}
+      />
 
       <main className="flex-1 flex overflow-hidden relative">
         {/* Left Panel */}
@@ -291,6 +433,16 @@ const AppLayout = () => {
           className="border-r border-gray-200 bg-white overflow-hidden"
           style={{ width: `${leftPanelWidth}%` }}
         >
+          {activeTab === "draw" && (
+            <div className="h-full">
+              <ExcalidrawViewer
+                onSave={(data) => {
+                  console.log("Drawing saved:", data);
+                  toast.success("Drawing saved successfully!");
+                }}
+              />
+            </div>
+          )}
           {isEditing && (
             <div className="border-b border-gray-200 mb-4">
               <PlaygroundApp />
