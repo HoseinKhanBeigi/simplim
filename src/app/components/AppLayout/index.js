@@ -433,6 +433,16 @@ const AppLayout = () => {
           className="border-r border-gray-200 bg-white overflow-hidden"
           style={{ width: `${leftPanelWidth}%` }}
         >
+          {activeTab === "draw" && (
+            <div className="h-full">
+              <ExcalidrawViewer
+                onSave={(data) => {
+                  console.log("Drawing saved:", data);
+                  toast.success("Drawing saved successfully!");
+                }}
+              />
+            </div>
+          )}
           {isEditing && (
             <div className="border-b border-gray-200 mb-4">
               <PlaygroundApp />
