@@ -1,0 +1,70 @@
+.draw-container {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+  background: white;
+}
+
+/* Excalidraw toolbar styles */
+.excalidraw .ToolIcon {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 4px;
+  margin: 2px;
+}
+
+.excalidraw .ToolIcon:hover {
+  background: #f3f4f6;
+}
+
+.excalidraw .ToolIcon__icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* Excalidraw button styles */
+.excalidraw button {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #374151;
+}
+
+.excalidraw button:hover {
+  background: #f3f4f6;
+}
+
+/* Excalidraw toolbar container */
+.excalidraw .ToolIcon__type-button {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+}
+
+/* Excalidraw color picker */
+.excalidraw .color-picker {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+/* Excalidraw sidebar */
+.excalidraw .sidebar {
+  background: white;
+  border-left: 1px solid #e5e7eb;
+}
+
+/* Ensure toolbar is visible */
+.excalidraw .ToolIcon__type-button--selected {
+  background: #e5e7eb;
+}
+
+/* Make sure the canvas is properly sized */
+.excalidraw .canvas-container {
+  width: 100% !important;
+  height: 100% !important;
+} 

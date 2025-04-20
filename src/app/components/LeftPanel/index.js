@@ -15,15 +15,15 @@ if (typeof window !== "undefined") {
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 }
 
-// Configure ONNX Runtime
-ort.env.wasm.numThreads = 1;
-ort.env.wasm.simd = true;
 
 const LeftPanel = ({
   onFileUpload,
   onTextChange,
   textContent,
   currentFile,
+  uploadedFiles,
+  onSwitchFile,
+  onRemoveFile,
   onPrevPage,
   onNextPage,
   onZoomIn,
@@ -252,15 +252,38 @@ const LeftPanel = ({
           Model Error: {modelError}
         </div>
       )}
-      {!isEditing && (
-        <div className="flex-none">
-          <UploadArea
-            handleFileUpload={handleFileUpload}
-            uploadingFile={uploadingFile}
-            isPremium={isPremium}
-          />
+
+      {/* PDF List */}
+      {/* {uploadedFiles.length > 0 && (
+        <div className="border-b border-gray-200 p-2">
+          <div className="text-sm font-medium text-gray-700 mb-2">Uploaded PDFs</div>
+          <div className="space-y-1 max-h-40 overflow-y-auto">
+            {uploadedFiles.map((file) => (
+              <div
+                key={file.url}
+                className={`flex items-center justify-between p-2 rounded-md cursor-pointer ${
+                  currentFile?.url === file.url
+                    ? "bg-blue-50 text-blue-700"
+                    : "hover:bg-gray-50"
+                }`}
+              >
+                <div
+                  className="flex-1 truncate"
+                  onClick={() => onSwitchFile(file)}
+                >
+                  {file.name}
+                </div>
+                <button
+                  onClick={() => onRemoveFile(file)}
+                  className="text-gray-400 hover:text-red-500 p-1"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
+      )} */}
 
       {currentFile && (
         <div className="flex flex-col flex-1 overflow-hidden">
@@ -275,7 +298,6 @@ const LeftPanel = ({
               onZoomOut={onZoomOut}
               onEdit={onEdit}
               isEditing={isEditing}
-              // handleClick={handleClick}
             />
           </div>
 
