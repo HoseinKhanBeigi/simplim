@@ -255,6 +255,8 @@ const AppLayout = () => {
     }
   };
 
+
+  
   const handleRemoveFile = async (fileToRemove) => {
     if (!fileToRemove || !fileToRemove.url) {
       console.error("Invalid file to remove");
