@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { pdfjs } from "react-pdf";
 import { toast } from "react-hot-toast";
 
 // Configure worker
-if (typeof window !== "undefined") {
-  pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
-}
+// if (typeof window !== "undefined") {
+//   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// }
 
 const Header = ({ user, onLogout, onUpgrade, activeTab, onTabChange, onFileUpload }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -16,34 +15,34 @@ const Header = ({ user, onLogout, onUpgrade, activeTab, onTabChange, onFileUploa
     fileInputRef.current?.click();
   };
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // const handleFileChange = async (e) => {
+  //   const file = e.target.files?.[0];
+  //   if (!file) return;
 
-    try {
-      // setUploadingFile(type);
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjs.getDocument(arrayBuffer).promise;
+  //   try {
+  //     // setUploadingFile(type);
+  //     const arrayBuffer = await file.arrayBuffer();
+  //     const pdf = await pdfjs.getDocument(arrayBuffer).promise;
 
-      // First, just upload the file with basic info
-      const fileUrl = URL.createObjectURL(file);
-      await onFileUpload({
-        url: fileUrl,
-        name: file.name,
-        type: 'pdf',
-        numPages: pdf.numPages,
-        currentPage: 1
-      });
+  //     // First, just upload the file with basic info
+  //     const fileUrl = URL.createObjectURL(file);
+  //     await onFileUpload({
+  //       url: fileUrl,
+  //       name: file.name,
+  //       type: 'pdf',
+  //       numPages: pdf.numPages,
+  //       currentPage: 1
+  //     });
 
-      // Start processing in the background
-      // processPDF(pdf, fileUrl, file.name, type);
-    } catch (error) {
-      console.error("Upload error:", error);
-      toast.error(`Failed to upload file: ${error.message}`);
-    } finally {
-      // setUploadingFile(null);
-    }
-  };
+  //     // Start processing in the background
+  //     // processPDF(pdf, fileUrl, file.name, type);
+  //   } catch (error) {
+  //     console.error("Upload error:", error);
+  //     toast.error(`Failed to upload file: ${error.message}`);
+  //   } finally {
+  //     // setUploadingFile(null);
+  //   }
+  // };
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -93,13 +92,13 @@ const Header = ({ user, onLogout, onUpgrade, activeTab, onTabChange, onFileUploa
               >
                 Browse Files
               </button>
-              <input
+              {/* <input
                 type="file"
                 ref={fileInputRef}
                 onChange={handleFileChange}
                 accept=".pdf"
                 className="hidden"
-              />
+              /> */}
             </div>
           </div>
 
