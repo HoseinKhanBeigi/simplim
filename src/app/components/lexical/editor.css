@@ -56,14 +56,14 @@
 }
 
 .toolbar {
-  margin-top: 16px;
+  /* margin-top: 16px; */
   display: flex;
-  /* margin: 8px; */
+  margin: 16px;
   border: 1px solid;
   border-color: antiquewhite;
   border-radius: 8px;
   /* flex-wrap: wrap; */
-  margin-bottom: 1px;
+  /* margin-bottom: 1px; */
   background: rgb(255, 255, 255);
   padding: 8px;
   vertical-align: middle;
@@ -86,59 +86,4 @@
   background-repeat: no-repeat;
   /* Add position relative for the scroll indicator */
   position: relative;
-}
-
-/* Add custom scrollbar styling for webkit browsers */
-.toolbar::-webkit-scrollbar {
-  height: 6px;
-}
-
-.toolbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.toolbar::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.5);
-  border-radius: 3px;
-}
-
-/* Add a subtle animation to draw attention to the scrollbar */
-@keyframes pulse-scrollbar {
-  0% { box-shadow: inset -10px 0 10px -10px rgba(0, 0, 0, 0.2); }
-  50% { box-shadow: inset -10px 0 10px -10px rgba(0, 0, 0, 0.4); }
-  100% { box-shadow: inset -10px 0 10px -10px rgba(0, 0, 0, 0.2); }
-}
-
-.toolbar:hover {
-  animation: pulse-scrollbar 2s infinite;
-}
-
-/* Add arrow indicator */
-.toolbar::after {
-  content: "→";
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-  opacity: 0.8;
-  animation: bounce 1.5s infinite;
-  pointer-events: none;
-}
-
-/* Hide arrow when scrolled to the end */
-.toolbar.scrolled-end::after {
-  display: none;
-}
-
-/* Bounce animation for the arrow */
-@keyframes bounce {
-  0%, 100% {
-    transform: translateY(-50%) translateX(0);
-  }
-  50% {
-    transform: translateY(-50%) translateX(5px);
-  }
 }
