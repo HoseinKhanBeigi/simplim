@@ -1,12 +1,27 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef } from "react";
-import { pdfjs, Document, Page } from "react-pdf";
+import dynamic from 'next/dynamic';
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
+// Dynamically import react-pdf components
+const { Document, Page } = dynamic(
+  () => import('react-pdf'),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex justify-center items-center p-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <span className="ml-3">Loading PDF Viewer...</span>
+      </div>
+    )
+  }
+);
+
 // Configure worker
 if (typeof window !== "undefined") {
+  const pdfjs = require('pdfjs-dist/build/pdf');
   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 }
 
