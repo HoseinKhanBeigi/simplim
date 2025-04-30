@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Header from "../Header";
 import AuthLayout from "../AuthLayout";
-import LeftPanel from "../LeftPanel";
+// import LeftPanel from "../LeftPanel";
 import AIInsightsPanel from "../AIInsightsPanel";
-import FileViewer from "../FileViewer";
+// import FileViewer from "../FileViewer";
 import ExcalidrawViewer from "../ExcalidrawViewer";
 import { Toaster, toast } from "react-hot-toast";
 import dynamic from "next/dynamic";
@@ -102,20 +102,7 @@ const AppLayout = () => {
   }, [pdfInstance]);
 
   // Load PDFs from IndexedDB on component mount
-  useEffect(() => {
-    const loadPDFs = async () => {
-      try {
-        const pdfs = await getAllPDFs();
-        setUploadedFiles(pdfs);
-        if (pdfs.length > 0) {
-          setCurrentFile(pdfs[0]);
-        }
-      } catch (error) {
-        console.error("Error loading PDFs:", error);
-      }
-    };
-    loadPDFs();
-  }, []);
+
 
   const handleLogin = async ({ email, password }) => {
     try {
