@@ -3,9 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Header from "../Header";
 import AuthLayout from "../AuthLayout";
-// import LeftPanel from "../LeftPanel";
 import AIInsightsPanel from "../AIInsightsPanel";
-// import FileViewer from "../FileViewer";
 import ExcalidrawViewer from "../ExcalidrawViewer";
 import { Toaster, toast } from "react-hot-toast";
 import dynamic from "next/dynamic";
@@ -286,7 +284,6 @@ const AppLayout = () => {
       />
 
       <main className="flex-1 flex overflow-hidden relative">
-        {/* Left Panel */}
         <div
           className="border-r border-gray-200 bg-white overflow-hidden"
           style={{ width: `${leftPanelWidth}%` }}
@@ -305,35 +302,6 @@ const AppLayout = () => {
             <div className="mb-4">
               <PlaygroundApp />
             </div>
-      
-          {/* <LeftPanel
-            currentFile={currentFile}
-            onFileUpload={handleFileUpload}
-            onTextChange={setTextContent}
-            textContent={textContent}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPrevPage={handlePrevPage}
-            onNextPage={handleNextPage}
-            onZoomIn={handleZoomIn}
-            onZoomOut={handleZoomOut}
-            isEditing={isEditing}
-            onEdit={handleEdit}
-            userRole={user.role}
-            onSavePDF={handleSavePDF}
-            onNewPDF={handleNewPDF}
-            onUpgrade={handleUpgrade}
-          >
-            <div className="flex flex-col flex-1">
-              <FileViewer
-                file={currentFile}
-                currentPage={currentPage}
-                scale={scale}
-                onLoadSuccess={handleLoadSuccess}
-                onLoadComplete={handleDocumentLoadComplete}
-              />
-            </div>
-          </LeftPanel> */}
         </div>
 
         {/* Resizer */}
