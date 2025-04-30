@@ -53,6 +53,11 @@
   "engines": {
     "node": "20.x"
   },
+  "browser": {
+      "canvas": false,
+      "fs": false,
+      "path": false
+  },
   "devDependencies": {
     "@types/node": "18.x",
     "@types/react": "18.x",
