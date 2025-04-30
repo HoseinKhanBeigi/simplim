@@ -13,6 +13,7 @@ const nextConfig = {
   },
   experimental: {
     // serverComponentsExternalPackages: ["chrome-aws-lambda", "puppeteer-core"],
+    serverComponentsExternalPackages: ['canvas', 'pdfjs-dist'],
   },
 };
 
