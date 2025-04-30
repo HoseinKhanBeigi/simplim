@@ -1,12 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   webpack: (config, { isServer }) => {
-    // Fix for puppeteer
-    // if (isServer) {
-    //   config.externals.push("chrome-aws-lambda", "puppeteer-core");
-    //   config.resolve.alias['canvas'] = false; // ✅ Fix for pdfjs-dist
-    // }
-
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        canvas: false,
+        fs: false,
+        path: false,
+      };
+    }
     return config;
   },
   experimental: {
