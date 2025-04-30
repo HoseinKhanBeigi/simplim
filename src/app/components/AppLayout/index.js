@@ -445,12 +445,12 @@ const AppLayout = () => {
               />
             </div>
           )}
-          {isEditing && (
-            <div className="border-b border-gray-200 mb-4">
+        
+            <div className="mb-4">
               <PlaygroundApp />
             </div>
-          )}
-          <LeftPanel
+      
+          {/* <LeftPanel
             currentFile={currentFile}
             onFileUpload={handleFileUpload}
             onTextChange={setTextContent}
@@ -477,7 +477,7 @@ const AppLayout = () => {
                 onLoadComplete={handleDocumentLoadComplete}
               />
             </div>
-          </LeftPanel>
+          </LeftPanel> */}
         </div>
 
         {/* Resizer */}

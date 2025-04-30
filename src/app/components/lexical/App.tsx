@@ -116,14 +116,14 @@ function ExportPDFButton() {
 
 function EditorContainer(): JSX.Element {
   return (
-    <div className="overflow-x-scroll">
+ 
       <div className="flex flex-row justify-center w-[100%] min-w-[796px]">
         <div className="editor-shell">
           <Editor />
           <ExportPDFButton />
         </div>
       </div>
-    </div>
+  
   );
 }
 
