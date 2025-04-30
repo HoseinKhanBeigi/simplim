@@ -37,6 +37,7 @@
 }
 
 .editor-scroller {
+  max-width: 1351px;
   min-height: 150px;
   max-width: 100%;
   border: 0;
