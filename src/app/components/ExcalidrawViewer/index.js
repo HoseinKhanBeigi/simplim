@@ -33,6 +33,8 @@ const ExcalidrawViewer = ({ onSave, initialData = null, initialText = '' }) => {
   const [command, setCommand] = useState("");
   const [commandHistory, setCommandHistory] = useState([]);
   const [generatedCommands, setGeneratedCommands] = useState([]);
+  const [prompt, setPrompt] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     console.log("Component mounted");
@@ -353,26 +355,146 @@ const ExcalidrawViewer = ({ onSave, initialData = null, initialText = '' }) => {
     toast.info("This feature will be implemented soon!");
   };
 
+  const handleGenerateFromPrompt = async () => {
+    if (!prompt.trim()) return;
+    
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/generate-diagram', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          prompt: prompt,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate diagram');
+      }
+
+      const data = await response.json();
+      const aiResponse = {
+        commands: data.commands
+      };
+
+      setGeneratedCommands(aiResponse.commands);
+      toast.success('Diagram commands generated successfully!');
+    } catch (error) {
+      console.error('Error generating commands:', error);
+      toast.error('Failed to generate diagram commands');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleApplyGeneratedCommands = () => {
+    if (!excalidrawAPI || generatedCommands.length === 0) return;
+
+    try {
+      const elements = excalidrawAPI.getSceneElements();
+      const newElements = [...elements];
+
+      generatedCommands.forEach(cmd => {
+        const element = {
+          type: cmd.type,
+          x: cmd.x,
+          y: cmd.y,
+          width: cmd.width,
+          height: cmd.height,
+          strokeColor: cmd.strokeColor || '#000000',
+          backgroundColor: cmd.backgroundColor || '#ffffff',
+          fillStyle: cmd.fillStyle || 'solid',
+          strokeWidth: 1,
+          roughness: 1,
+          opacity: 100,
+          angle: 0,
+          groupIds: [],
+          strokeSharpness: 'sharp',
+          boundElements: null,
+          updated: Date.now(),
+          version: 1,
+          versionNonce: Math.floor(Math.random() * 1000000),
+          isDeleted: false,
+          id: `${cmd.type}-${Date.now()}-${Math.random()}`,
+          seed: Math.floor(Math.random() * 1000000)
+        };
+
+        // Add text if present
+        if (cmd.text) {
+          element.text = cmd.text;
+        }
+
+        // Handle arrow points if present
+        if (cmd.points) {
+          element.points = cmd.points;
+          element.startArrowhead = cmd.startArrowhead;
+          element.endArrowhead = cmd.endArrowhead;
+        }
+
+        newElements.push(element);
+      });
+
+      excalidrawAPI.updateScene({
+        elements: newElements
+      });
+
+      toast.success('Diagram applied successfully!');
+    } catch (error) {
+      console.error('Error applying commands:', error);
+      toast.error('Failed to apply diagram');
+    }
+  };
+
   if (!isMounted) {
     return null;
   }
 
   return (
     <div className="w-full h-[calc(100vh-4rem)] bg-white">
-      <div className="w-full h-full">
-        <ExcalidrawComponent
-          excalidrawAPI={handleExcalidrawAPI}
-          initialData={initialData}
-          theme={theme}
-          UIOptions={{
-            canvasActions: {
-              saveToActiveFile: false,
-              loadScene: false,
-              export: false,
-              toggleTheme: false,
-            },
-          }}
-        />
+      <div className="flex flex-col h-full">
+        <div className="p-4 border-b">
+          <div className="flex gap-4 items-center">
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder="Enter your prompt (e.g., 'Draw a red rectangle and a blue circle')"
+              className="flex-1 p-2 border rounded"
+            />
+            <button
+              onClick={handleGenerateFromPrompt}
+              disabled={isGenerating}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              {isGenerating ? 'Generating...' : 'Generate Commands'}
+            </button>
+            {generatedCommands.length > 0 && (
+              <button
+                onClick={handleApplyGeneratedCommands}
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              >
+                Apply Commands
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="flex-1">
+          <ExcalidrawComponent
+            excalidrawAPI={handleExcalidrawAPI}
+            initialData={initialData}
+            theme={theme}
+            UIOptions={{
+              canvasActions: {
+                saveToActiveFile: false,
+                loadScene: false,
+                export: false,
+                toggleTheme: false,
+              },
+            }}
+          />
+        </div>
       </div>
     </div>
   );
