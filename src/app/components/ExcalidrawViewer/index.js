@@ -481,19 +481,19 @@ const ExcalidrawViewer = ({ onSave, initialData = null, initialText = '' }) => {
           </div>
         </div>
         <div className="flex-1">
-          <ExcalidrawComponent
-            excalidrawAPI={handleExcalidrawAPI}
-            initialData={initialData}
-            theme={theme}
-            UIOptions={{
-              canvasActions: {
-                saveToActiveFile: false,
-                loadScene: false,
-                export: false,
-                toggleTheme: false,
-              },
-            }}
-          />
+        <ExcalidrawComponent
+          excalidrawAPI={handleExcalidrawAPI}
+          initialData={initialData}
+          theme={theme}
+          UIOptions={{
+            canvasActions: {
+              saveToActiveFile: false,
+              loadScene: false,
+              export: false,
+              toggleTheme: false,
+            },
+          }}
+        />
         </div>
       </div>
     </div>
