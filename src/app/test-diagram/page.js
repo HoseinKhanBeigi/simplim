@@ -165,7 +165,7 @@ const testDiagram = {
   "connections": [
     {
       "type": "arrow",
-      "style": "sharp",
+      "style": "elbow",
       "start": [550, 80],
       "end": [290, 180],
       "strokeColor": "#000000",
@@ -175,7 +175,7 @@ const testDiagram = {
     },
     {
       "type": "arrow",
-      "style": "sharp",
+      "style": "elbow",
       "start": [550, 80],
       "end": [690, 180],
       "strokeColor": "#000000",
@@ -268,7 +268,7 @@ const testDiagram = {
     },
     {
       "type": "arrow",
-      "style": "sharp",
+      "style": "elbow",
       "start": [560, 520],
       "end": [225, 560],
       "strokeColor": "#000000",
@@ -278,7 +278,7 @@ const testDiagram = {
     },
     {
       "type": "arrow",
-      "style": "sharp",
+      "style": "elbow",
       "start": [560, 520],
       "end": [525, 560],
       "strokeColor": "#000000",
@@ -288,7 +288,7 @@ const testDiagram = {
     },
     {
       "type": "arrow",
-      "style": "sharp",
+      "style": "elbow",
       "start": [560, 520],
       "end": [825, 560],
       "strokeColor": "#000000",
@@ -530,6 +530,84 @@ export default function TestDiagram() {
     }
   };
 
+  const createCustomArrow = (start, end, options = {}) => {
+    const {
+      strokeColor = "#000000",
+      strokeWidth = 2,
+      startArrowhead = null,
+      endArrowhead = "triangle",
+      controlPoints = [],
+      arrowStyle = "sharp" // 'sharp', 'curved', 'elbow'
+    } = options;
+  
+    // Calculate points based on arrow style
+    let points;
+    switch (arrowStyle) {
+      case "curved":
+        const midX = (start[0] + end[0]) / 2;
+        const midY = (start[1] + end[1]) / 2;
+        points = [
+          [0, 0],
+          [midX - start[0], midY - start[1]],
+          [end[0] - start[0], end[1] - start[1]]
+        ];
+        break;
+      case "elbow":
+        points = [
+          [0, 0],
+          [end[0] - start[0], 0],
+          [end[0] - start[0], end[1] - start[1]]
+        ];
+        break;
+      default: // sharp
+        points = [
+          [0, 0],
+          [end[0] - start[0], end[1] - start[1]]
+        ];
+    }
+  
+    return {
+      id: crypto.randomUUID(),
+      type: "arrow",
+      x: start[0],
+      y: start[1],
+      width: end[0] - start[0],
+      height: end[1] - start[1],
+      angle: 0,
+      strokeColor,
+      backgroundColor: "transparent",
+      fillStyle: "solid",
+      strokeWidth,
+      roughness: 1,
+      opacity: 100,
+      groupIds: [],
+      seed: Math.floor(Math.random() * 100000),
+      version: 1,
+      versionNonce: Math.floor(Math.random() * 100000),
+      isDeleted: false,
+      boundElements: [],
+      updated: Date.now(),
+      points,
+      startArrowhead,
+      endArrowhead,
+    };
+  };
+
+  // const testDiagramGeneration = () => {
+  //   const elements = [];
+    
+  //   // Process shapes from test diagram
+  //   testDiagram.shapes.forEach(shape => {
+  //     elements.push(...createShape(shape));
+  //   });
+
+  //   // Process connections from test diagram
+  //   testDiagram.connections.forEach(connection => {
+  //     elements.push(createCustomArrow(connection));
+  //   });
+
+  //   excalidrawAPI.updateScene({ elements });
+  // };
   const testDiagramGeneration = () => {
     const elements = [];
     
@@ -537,12 +615,24 @@ export default function TestDiagram() {
     testDiagram.shapes.forEach(shape => {
       elements.push(...createShape(shape));
     });
-
+  
     // Process connections from test diagram
     testDiagram.connections.forEach(connection => {
-      elements.push(createConnection(connection));
+      // Create arrow using the connection's start and end points
+      const arrow = createCustomArrow(
+        connection.start,  // Start point from connection
+        connection.end,    // End point from connection
+        {
+          strokeColor: connection.strokeColor || "#000000",
+          strokeWidth: connection.strokeWidth || 2,
+          startArrowhead: connection.startArrowhead || null,
+          endArrowhead: connection.endArrowhead || "triangle",
+          arrowStyle: connection.style || "sharp"
+        }
+      );
+      elements.push(arrow);
     });
-
+  
     excalidrawAPI.updateScene({ elements });
   };
 
@@ -552,6 +642,8 @@ export default function TestDiagram() {
       generateDiagram(prompt);
     }
   };
+
+
 
   return (
     <div className="relative w-full h-screen">
