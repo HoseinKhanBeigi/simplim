@@ -17,286 +17,201 @@ const ExcalidrawComponent = dynamic(
 
 // Test diagram data
 const testDiagram = {
-  "shapes": [
-    {
-      "type": "rectangle",
-      "x": 400,
-      "y": 40,
-      "width": 300,
-      "height": 100,
-      "backgroundColor": "#e3f2fd",
-      "text": "ExcalidrawComponent\nProps: nodeKey, data, width, height",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "rectangle",
-      "x": 150,
-      "y": 180,
-      "width": 280,
-      "height": 80,
-      "backgroundColor": "#fff9c4",
-      "text": "Hooks & State\nuseLexicalComposerContext\nuseLexicalEditable\nuseState",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "rectangle",
-      "x": 550,
-      "y": 180,
-      "width": 280,
-      "height": 80,
-      "backgroundColor": "#fff9c4",
-      "text": "Refs\nimageContainerRef\nbuttonRef\ncaptionButtonRef",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "rectangle",
-      "x": 50,
-      "y": 300,
-      "width": 220,
-      "height": 80,
-      "backgroundColor": "#f8bbd0",
-      "text": "Event Handlers\ndeleteNode\nsetData\nonResizeStart/End",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "rectangle",
-      "x": 300,
-      "y": 300,
-      "width": 220,
-      "height": 80,
-      "backgroundColor": "#f8bbd0",
-      "text": "Modal Control\nopenModal\ncloseModal\nisModalOpen",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "rectangle",
-      "x": 550,
-      "y": 300,
-      "width": 220,
-      "height": 80,
-      "backgroundColor": "#f8bbd0",
-      "text": "Data Parsing\nuseMemo\nJSON.parse\nelements, files, appState",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "rectangle",
-      "x": 800,
-      "y": 300,
-      "width": 220,
-      "height": 80,
-      "backgroundColor": "#f8bbd0",
-      "text": "Selection Control\nisSelected\nsetSelected\nclearSelection",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "diamond",
-      "x": 400,
-      "y": 420,
-      "width": 320,
-      "height": 100,
-      "backgroundColor": "#e1bee7",
-      "text": "Render Logic\nConditional Rendering\nModal & Image Display",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "rectangle",
-      "x": 100,
-      "y": 560,
-      "width": 250,
-      "height": 80,
-      "backgroundColor": "#dcedc8",
-      "text": "ExcalidrawModal\nInitial Elements\nInitial Files\nInitial AppState",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "rectangle",
-      "x": 400,
-      "y": 560,
-      "width": 250,
-      "height": 80,
-      "backgroundColor": "#dcedc8",
-      "text": "ExcalidrawImage\nImage Container\nElements Display",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    },
-    {
-      "type": "rectangle",
-      "x": 700,
-      "y": 560,
-      "width": 250,
-      "height": 80,
-      "backgroundColor": "#dcedc8",
-      "text": "ImageResizer\nResize Controls\nCaption Handling",
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "opacity": 100,
-      "angle": 0
-    }
-  ],
-  "connections": [
-    {
-      "type": "arrow",
-      "style": "elbow",
-      "start": [550, 80],
-      "end": [290, 180],
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "arrow",
-      "style": "elbow",
-      "start": [550, 80],
-      "end": [690, 180],
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "arrow",
-      "style": "curved",
-      "start": [290, 260],
-      "end": [160, 300],
-      "strokeColor": "#1e88e5",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle",
-      "controlPoints": [[220, 280], [180, 290]]
-    },
-    {
-      "type": "arrow",
-      "style": "sharp",
-      "start": [290, 260],
-      "end": [410, 300],
-      "strokeColor": "#1e88e5",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "arrow",
-      "style": "curved",
-      "start": [690, 260],
-      "end": [660, 300],
-      "strokeColor": "#1e88e5",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle",
-      "controlPoints": [[670, 280], [665, 290]]
-    },
-    {
-      "type": "arrow",
-      "style": "curved",
-      "start": [690, 260],
-      "end": [910, 300],
-      "strokeColor": "#1e88e5",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle",
-      "controlPoints": [[800, 280], [850, 290]]
-    },
-    {
-      "type": "arrow",
-      "style": "elbow",
-      "start": [160, 380],
-      "end": [560, 420],
-      "strokeColor": "#6a1b9a",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "arrow",
-      "style": "elbow",
-      "start": [410, 380],
-      "end": [560, 420],
-      "strokeColor": "#6a1b9a",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "arrow",
-      "style": "elbow",
-      "start": [660, 380],
-      "end": [560, 420],
-      "strokeColor": "#6a1b9a",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "arrow",
-      "style": "elbow",
-      "start": [910, 380],
-      "end": [560, 420],
-      "strokeColor": "#6a1b9a",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "arrow",
-      "style": "elbow",
-      "start": [560, 520],
-      "end": [225, 560],
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "arrow",
-      "style": "elbow",
-      "start": [560, 520],
-      "end": [525, 560],
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    },
-    {
-      "type": "arrow",
-      "style": "elbow",
-      "start": [560, 520],
-      "end": [825, 560],
-      "strokeColor": "#000000",
-      "strokeWidth": 2,
-      "startArrowhead": null,
-      "endArrowhead": "triangle"
-    }
-  ]
+  
+  
+  
+    "shapes": [
+      {
+        "type": "ellipse",
+        "x": 100,
+        "y": 40,
+        "width": 240,
+        "height": 80,
+        "backgroundColor": "#e0f7fa",
+        "text": "Input Question q",
+        "strokeColor": "#000000",
+        "strokeWidth": 1,
+        "opacity": 100,
+        "angle": 0
+      },
+      {
+        "type": "rectangle",
+        "x": 100,
+        "y": 160,
+        "width": 280,
+        "height": 80,
+        "backgroundColor": "#fff9c4",
+        "text": "Old Policy π_old → Sample Group Outputs {o₁..o_G}",
+        "strokeColor": "#000000",
+        "strokeWidth": 1,
+        "opacity": 100,
+        "angle": 0
+      },
+      {
+        "type": "rectangle",
+        "x": 100,
+        "y": 280,
+        "width": 280,
+        "height": 80,
+        "backgroundColor": "#f8bbd0",
+        "text": "Compute Rewards r₁..r_G",
+        "strokeColor": "#000000",
+        "strokeWidth": 1,
+        "opacity": 100,
+        "angle": 0
+      },
+      {
+        "type": "rectangle",
+        "x": 100,
+        "y": 400,
+        "width": 320,
+        "height": 80,
+        "backgroundColor": "#dcedc8",
+        "text": "Compute Advantage Aᵢ = (rᵢ - mean) / std",
+        "strokeColor": "#000000",
+        "strokeWidth": 1,
+        "opacity": 100,
+        "angle": 0
+      },
+      {
+        "type": "rectangle",
+        "x": 480,
+        "y": 160,
+        "width": 280,
+        "height": 80,
+        "backgroundColor": "#e3f2fd",
+        "text": "New Policy π_θ(oᵢ | q)",
+        "strokeColor": "#000000",
+        "strokeWidth": 1,
+        "opacity": 100,
+        "angle": 0
+      },
+      {
+        "type": "rectangle",
+        "x": 480,
+        "y": 280,
+        "width": 280,
+        "height": 80,
+        "backgroundColor": "#ede7f6",
+        "text": "Clipped Objective: min(ratio * Aᵢ, clip(ratio, 1±ε) * Aᵢ)",
+        "strokeColor": "#000000",
+        "strokeWidth": 1,
+        "opacity": 100,
+        "angle": 0
+      },
+      {
+        "type": "rectangle",
+        "x": 480,
+        "y": 400,
+        "width": 280,
+        "height": 80,
+        "backgroundColor": "#f3e5f5",
+        "text": "Penalty: β * KL(π_θ || π_ref)",
+        "strokeColor": "#000000",
+        "strokeWidth": 1,
+        "opacity": 100,
+        "angle": 0
+      },
+      {
+        "type": "diamond",
+        "x": 300,
+        "y": 520,
+        "width": 300,
+        "height": 80,
+        "backgroundColor": "#ffe0b2",
+        "text": "GRPO Objective J_GRPO(θ)\n= Expected Score - β * KL",
+        "strokeColor": "#000000",
+        "strokeWidth": 1,
+        "opacity": 100,
+        "angle": 0
+      }
+    ],
+    "connections": [
+      {
+        "type": "arrow",
+        "style": "elbow",
+        "start": [220, 80],
+        "end": [240, 160],
+        "strokeColor": "#000000",
+        "strokeWidth": 2,
+        "startArrowhead": "triangle",
+        "endArrowhead": "triangle",
+        "controlPoints": []
+      },
+      {
+        "type": "arrow",
+        "style": "elbow",
+        "start": [240, 240],
+        "end": [240, 280],
+        "strokeColor": "#000000",
+        "strokeWidth": 2,
+        "startArrowhead": "triangle",
+        "endArrowhead": "triangle",
+        "controlPoints": []
+      },
+      {
+        "type": "arrow",
+        "style": "elbow",
+        "start": [240, 360],
+        "end": [260, 400],
+        "strokeColor": "#000000",
+        "strokeWidth": 2,
+        "startArrowhead": "triangle",
+        "endArrowhead": "triangle",
+        "controlPoints": []
+      },
+      {
+        "type": "arrow",
+        "style": "sharp",
+        "start": [620, 240],
+        "end": [620, 280],
+        "strokeColor": "#000000",
+        "strokeWidth": 2,
+        "startArrowhead": "triangle",
+        "endArrowhead": "triangle",
+        "controlPoints": []
+      },
+      {
+        "type": "arrow",
+        "style": "elbow",
+        "start": [620, 360],
+        "end": [620, 400],
+        "strokeColor": "#000000",
+        "strokeWidth": 2,
+        "startArrowhead": "triangle",
+        "endArrowhead": "triangle",
+        "controlPoints": []
+      },
+      {
+        "type": "arrow",
+        "style": "elbow",
+        "start": [260, 480],
+        "end": [360, 520],
+        "strokeColor": "#000000",
+        "strokeWidth": 2,
+        "startArrowhead": null,
+        "endArrowhead": "triangle",
+        "controlPoints": []
+      },
+      {
+        "type": "arrow",
+        "style": "elbow",
+        "start": [620, 480],
+        "end": [540, 520],
+        "strokeColor": "#000000",
+        "strokeWidth": 2,
+        "startArrowhead": null,
+        "endArrowhead": "triangle",
+        "controlPoints": []
+      }
+    ]
+  
+  
+  
+  
+  
+  
+  
 };
 
 export default function TestDiagram() {
@@ -530,111 +445,30 @@ export default function TestDiagram() {
     }
   };
 
-  const createCustomArrow = (start, end, options = {}) => {
-    const {
-      strokeColor = "#000000",
-      strokeWidth = 2,
-      startArrowhead = null,
-      endArrowhead = "triangle",
-      controlPoints = [],
-      arrowStyle = "sharp" // 'sharp', 'curved', 'elbow'
-    } = options;
-  
-    // Calculate points based on arrow style
-    let points;
-    switch (arrowStyle) {
-      case "curved":
-        const midX = (start[0] + end[0]) / 2;
-        const midY = (start[1] + end[1]) / 2;
-        points = [
-          [0, 0],
-          [midX - start[0], midY - start[1]],
-          [end[0] - start[0], end[1] - start[1]]
-        ];
-        break;
-      case "elbow":
-        points = [
-          [0, 0],
-          [end[0] - start[0], 0],
-          [end[0] - start[0], end[1] - start[1]]
-        ];
-        break;
-      default: // sharp
-        points = [
-          [0, 0],
-          [end[0] - start[0], end[1] - start[1]]
-        ];
-    }
-  
-    return {
-      id: crypto.randomUUID(),
-      type: "arrow",
-      x: start[0],
-      y: start[1],
-      width: end[0] - start[0],
-      height: end[1] - start[1],
-      angle: 0,
-      strokeColor,
-      backgroundColor: "transparent",
-      fillStyle: "solid",
-      strokeWidth,
-      roughness: 1,
-      opacity: 100,
-      groupIds: [],
-      seed: Math.floor(Math.random() * 100000),
-      version: 1,
-      versionNonce: Math.floor(Math.random() * 100000),
-      isDeleted: false,
-      boundElements: [],
-      updated: Date.now(),
-      points,
-      startArrowhead,
-      endArrowhead,
-    };
-  };
 
-  // const testDiagramGeneration = () => {
-  //   const elements = [];
-    
-  //   // Process shapes from test diagram
-  //   testDiagram.shapes.forEach(shape => {
-  //     elements.push(...createShape(shape));
-  //   });
-
-  //   // Process connections from test diagram
-  //   testDiagram.connections.forEach(connection => {
-  //     elements.push(createCustomArrow(connection));
-  //   });
-
-  //   excalidrawAPI.updateScene({ elements });
-  // };
   const testDiagramGeneration = () => {
+    // Check if excalidrawAPI is available
+    if (!excalidrawAPI) {
+      setError("Excalidraw is not ready yet. Please wait.");
+      return;
+    }
+
     const elements = [];
     
     // Process shapes from test diagram
     testDiagram.shapes.forEach(shape => {
       elements.push(...createShape(shape));
     });
-  
+
     // Process connections from test diagram
     testDiagram.connections.forEach(connection => {
-      // Create arrow using the connection's start and end points
-      const arrow = createCustomArrow(
-        connection.start,  // Start point from connection
-        connection.end,    // End point from connection
-        {
-          strokeColor: connection.strokeColor || "#000000",
-          strokeWidth: connection.strokeWidth || 2,
-          startArrowhead: connection.startArrowhead || null,
-          endArrowhead: connection.endArrowhead || "triangle",
-          arrowStyle: connection.style || "sharp"
-        }
-      );
-      elements.push(arrow);
+      elements.push(createConnection(connection));
     });
-  
+
+    // Update the scene
     excalidrawAPI.updateScene({ elements });
   };
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
