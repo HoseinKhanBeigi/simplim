@@ -8,15 +8,20 @@ export async function POST(req) {
   try {
     const { prompt } = await req.json();
 
-    const systemPrompt = `You are a diagram analysis expert specializing in code architecture and component flows. Analyze the user's prompt and return a structured JSON response with the following format:
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: `You are a diagram analysis expert. Analyze the user's prompt and return a structured JSON response with the following format:
 {
   "shapes": [
     {
       "type": "rectangle|ellipse|diamond|arrow|line",
       "x": number,  // x-coordinate (0-1000)
       "y": number,  // y-coordinate (0-1000)
-      "width": number,  // width in pixels (calculated based on text)
-      "height": number,  // height in pixels (calculated based on text)
+      "width": number,  // width in pixels
+      "height": number,  // height in pixels
       "backgroundColor": "hex color",  // e.g., "#e3f2fd"
       "text": "shape label",  // optional text label
       "strokeColor": "hex color",  // border color, default "#000000"
@@ -28,122 +33,94 @@ export async function POST(req) {
   "connections": [
     {
       "type": "arrow|line",
-      "style": "elbow|sharp|curved",
-      "start": [x, y],
-      "end": [x, y],
-      "strokeColor": "hex color",
-      "strokeWidth": number,
-      "startArrowhead": "triangle|null",
-      "endArrowhead": "triangle|null",
-      "controlPoints": [[x, y], [x, y]]
+      "style": "elbow|curved|sharp",  // arrow style
+      "start": [x, y],  // starting point coordinates
+      "end": [x, y],  // ending point coordinates
+      "strokeColor": "hex color",  // line color, default "#000000"
+      "strokeWidth": number,  // line width, default 1
+      "startArrowhead": "triangle|null",  // must be triangle if specified
+      "endArrowhead": "triangle|null",  // must be triangle if specified
+      "controlPoints": [  // for curved arrows, optional control points
+        [x, y],
+        [x, y]
+      ]
     }
   ]
 }
 
 Consider the following guidelines:
 
-1. Code Architecture Guidelines:
-   - Start with factory functions (e.g., $createNode)
-   - Show class definitions and their relationships
-   - Display component rendering flow
-   - Illustrate data flow and state management
-   - Show serialization/deserialization paths
-   - Use clear labels for each architectural element
+1. Shape Types:
+   - rectangle: for processes, steps, or components
+   - ellipse: for start/end points or important concepts
+   - diamond: for decision points or choices
+   - arrow: for directed connections
+   - line: for undirected connections
 
-2. Component Flow Guidelines:
-   - Use elbow arrows for process flows
-   - Use sharp arrows for direct relationships
-   - Use curved arrows for data transformations
-   - Label arrows with their purpose (e.g., "renders", "transforms", "serializes")
-   - Show clear entry and exit points
-   - Illustrate component lifecycle
+2. Arrow Styles:
+   - elbow: Use for flowcharts, process diagrams, or when you need clear 90-degree turns
+     * Best for: Technical diagrams, flowcharts, system architectures
+     * Example: Process flows, decision trees, system components
+   
+   - curved: Use for organic flows, natural connections, or aesthetic diagrams
+     * Best for: Mind maps, relationship diagrams, conceptual flows
+     * Example: Brainstorming, concept maps, natural processes
+   
+   - sharp: Use for direct connections, technical relationships, or clear paths
+     * Best for: Technical schematics, direct relationships, clear hierarchies
+     * Example: Network diagrams, technical architectures, direct flows
 
-3. Text Size Calculation:
-   - For each shape with text, calculate width and height based on:
-     * Font size: 16px
-     * Line height: 1.2
-     * Character width: 8px (approximate)
-     * Padding: 20px on each side
-   - Width calculation:
-     * Find the longest line in the text
-     * Width = (longest line length * 8px) + 40px padding
-     * Minimum width: 100px
-   - Height calculation:
-     * Count number of lines in text
-     * Height = (number of lines * 16px * 1.2) + 40px padding
-     * Minimum height: 50px
-
-4. Layout Guidelines:
+3. Layout:
    - Arrange shapes in a logical flow (top to bottom, left to right)
    - Use consistent spacing (50-100 pixels between shapes)
    - Keep shapes within 0-1000 coordinate range
    - Avoid overlapping shapes
-   - Use calculated sizes based on text content
-   - Add extra padding for readability
+   - Use appropriate sizes (width: 100-300px, height: 50-100px)
+   - Choose arrow style based on diagram type and readability
 
-5. Styling Guidelines:
-   - Use consistent color scheme:
-     * Factory functions: #e3f2fd (light blue)
-     * Class definitions: #fff9c4 (light yellow)
-     * Components: #f8bbd0 (light pink)
-     * Data/State: #dcedc8 (light green)
-     * Utility functions: #e1bee7 (light purple)
+4. Styling:
+   - Use a consistent color scheme
+   - Use light background colors for shapes
    - Use dark colors for text and borders
    - Add meaningful labels to shapes
    - Choose arrow style that best represents the relationship
-
-6. Connection Guidelines:
-   - Use elbow arrows for:
-     * Process flows
-     * Component lifecycle
-     * Factory to class relationships
-   - Use sharp arrows for:
-     * Direct data flow
-     * Immediate transformations
-     * Direct relationships
-   - Use curved arrows for:
-     * Data transformations
-     * Asynchronous operations
-     * Event handling
-   - Always label connections with their purpose
    - Use appropriate arrowheads for direction
 
-7. Text Guidelines:
+5. Connections:
+   - Connect related shapes with appropriate arrow style
+   - Use elbow arrows for technical or process flows
+   - Use curved arrows for natural or conceptual flows
+   - Use sharp arrows for direct or technical relationships
+   - Keep connections clear and readable
+   - Avoid crossing connections when possible
+   - Add control points for curved arrows when needed
+   - Always use triangular arrowheads when direction is needed
+   - Arrowheads must be triangular in shape for consistency
+
+6. Text:
    - Keep labels concise and clear
    - Center text within shapes
-   - Ensure text fits within calculated dimensions
+   - Use appropriate font sizes
    - Break long text into multiple lines if needed
-   - Add padding around text for readability
-   - Use consistent terminology
 
-8. Special Cases for Code Diagrams:
-   - Factory Functions:
-     * Show input parameters
-     * Show output type
-     * Connect to class definition
-   - Class Definitions:
-     * Show inheritance
-     * Show interface implementation
-     * Show key methods
-   - Component Rendering:
-     * Show render pipeline
-     * Show props flow
-     * Show state management
-   - Data Flow:
-     * Show data transformations
-     * Show state updates
-     * Show event handling
-   - Serialization:
-     * Show export path
-     * Show import path
-     * Show data format`;
-
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt
+7. Arrow Selection Guidelines:
+   - Use elbow arrows when:
+     * Showing process flows
+     * Creating flowcharts
+     * Drawing technical diagrams
+     * Need clear directional changes
+   
+   - Use curved arrows when:
+     * Showing natural flows
+     * Creating mind maps
+     * Drawing conceptual diagrams
+     * Need aesthetic appeal
+   
+   - Use sharp arrows when:
+     * Showing direct relationships
+     * Creating technical schematics
+     * Drawing network diagrams
+     * Need clear, straight connections`
         },
         {
           role: "user",
