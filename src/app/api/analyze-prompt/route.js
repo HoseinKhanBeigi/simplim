@@ -13,7 +13,7 @@ export async function POST(req) {
       messages: [
         {
           role: "system",
-          content: `You are a diagram analysis expert. Analyze the user's prompt and return a structured JSON response with the following format:
+          content: `You are a code diagram analysis expert. Analyze the user's prompt and return a structured JSON response with the following format:
 {
   "shapes": [
     {
