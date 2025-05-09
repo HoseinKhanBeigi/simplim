@@ -7,6 +7,7 @@ import AIInsightsPanel from "../AIInsightsPanel";
 import ExcalidrawViewer from "../ExcalidrawViewer";
 import { Toaster, toast } from "react-hot-toast";
 import dynamic from "next/dynamic";
+import testData from '../../test-content/test-data.json';
 
 // Dynamically import PlaygroundApp with no SSR
 const PlaygroundApp = dynamic(() => import("../lexical/App"), {
@@ -299,9 +300,9 @@ const AppLayout = () => {
             </div>
           )}
         
-            <div className="mb-4">
-              <PlaygroundApp />
-            </div>
+          <div className="mb-4">
+            <PlaygroundApp initialContent={testData.content} />
+          </div>
         </div>
 
         {/* Resizer */}

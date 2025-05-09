@@ -13,7 +13,7 @@ import { $createLinkNode } from "@lexical/link";
 import { $createListItemNode, $createListNode } from "@lexical/list";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $createHeadingNode, $createQuoteNode } from "@lexical/rich-text";
+import { $createHeadingNode, $createQuoteNode, HeadingTagType } from "@lexical/rich-text";
 import {
   $createParagraphNode,
   $createTextNode,
@@ -21,7 +21,10 @@ import {
   $isTextNode,
   DOMConversionMap,
   TextNode,
+  LexicalEditor,
 } from "lexical";
+import { $createCodeNode } from "@lexical/code";
+import { $createTableNode, $createTableRowNode, $createTableCellNode } from "@lexical/table";
 
 import "./index.css";
 import "./editor.css";
@@ -127,7 +130,84 @@ function EditorContainer(): JSX.Element {
   );
 }
 
-function App(): JSX.Element {
+function InitializeEditor({ initialContent }: { initialContent?: any[] }): JSX.Element {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (initialContent && editor) {
+      editor.update(() => {
+        const root = $getRoot();
+        root.clear();
+        
+        initialContent.forEach((item: any) => {
+          switch (item.type) {
+            case 'heading':
+              const level = Math.min(Math.max(parseInt(item.level) || 1, 1), 6);
+              const headingNode = $createHeadingNode(getHeadingTag(level));
+              headingNode.append($createTextNode(item.content));
+              root.append(headingNode);
+              break;
+
+            case 'paragraph':
+              const paragraphNode = $createParagraphNode();
+              paragraphNode.append($createTextNode(item.content));
+              root.append(paragraphNode);
+              break;
+
+            case 'list':
+              const listNode = $createListNode(item.style === 'ordered' ? 'number' : 'bullet');
+              item.items.forEach((listItem: string) => {
+                const listItemNode = $createListItemNode();
+                listItemNode.append($createTextNode(listItem));
+                listNode.append(listItemNode);
+              });
+              root.append(listNode);
+              break;
+
+            case 'quote':
+              const quoteNode = $createQuoteNode();
+              quoteNode.append($createTextNode(item.content));
+              root.append(quoteNode);
+              break;
+
+            case 'code':
+              const codeNode = $createCodeNode(item.language);
+              codeNode.append($createTextNode(item.content));
+              root.append(codeNode);
+              break;
+
+            case 'table':
+              const tableNode = $createTableNode();
+              // Add header row
+              const headerRow = $createTableRowNode();
+              item.columns.forEach((column: string) => {
+                const cell = $createTableCellNode(1);
+                cell.append($createTextNode(column));
+                headerRow.append(cell);
+              });
+              tableNode.append(headerRow);
+              // Add data rows
+              item.rows.forEach((row: string[]) => {
+                const dataRow = $createTableRowNode();
+                row.forEach((cell: string) => {
+                  const cellNode = $createTableCellNode(0);
+                  cellNode.append($createTextNode(cell));
+                  dataRow.append(cellNode);
+                });
+                tableNode.append(dataRow);
+              });
+              root.append(tableNode);
+              break;
+          }
+        });
+      });
+    }
+  }, [initialContent, editor]);
+
+  return null;
+}
+
+function App({ initialContent }: { initialContent?: any[] }): JSX.Element {
   const {
     settings: { isCollab, emptyEditor, measureTypingPerf },
   } = useSettings();
@@ -139,32 +219,9 @@ function App(): JSX.Element {
     nodes: [...PlaygroundNodes],
     onError: (error: Error) => {
       console.error('Lexical editor error:', error);
-      // Don't throw the error, just log it
     },
     theme: PlaygroundEditorTheme,
   };
-
-  // Enhanced cleanup effect for editor
-  useEffect(() => {
-    let isMounted = true;
-
-    const cleanup = () => {
-      if (!isMounted) return;
-      isMounted = false;
-      
-      // Cleanup any remaining event listeners
-      const rootElement = document.querySelector('.editor-shell');
-      if (rootElement) {
-        // Remove common event listeners that might have been added
-        const events = ['click', 'mousedown', 'mouseup', 'mousemove', 'keydown', 'keyup', 'input', 'change'];
-        events.forEach(eventType => {
-          rootElement.removeEventListener(eventType, () => {});
-        });
-      }
-    };
-
-    return cleanup;
-  }, []);
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
@@ -172,6 +229,7 @@ function App(): JSX.Element {
         <SharedHistoryContext>
           <TableContext>
             <ToolbarContext>
+              <InitializeEditor initialContent={initialContent} />
               <EditorContainer />
             </ToolbarContext>
           </TableContext>
@@ -181,11 +239,23 @@ function App(): JSX.Element {
   );
 }
 
-export default function PlaygroundApp(): JSX.Element {
+const getHeadingTag = (level: number): HeadingTagType => {
+  switch (level) {
+    case 1: return 'h1';
+    case 2: return 'h2';
+    case 3: return 'h3';
+    case 4: return 'h4';
+    case 5: return 'h5';
+    case 6: return 'h6';
+    default: return 'h1';
+  }
+};
+
+export default function PlaygroundApp({ initialContent }: { initialContent?: any[] }): JSX.Element {
   return (
     <ErrorBoundary fallback={<div>Something went wrong with the editor. Please try refreshing the page.</div>}>
       <FlashMessageContext>
-        <App />
+        <App initialContent={initialContent} />
       </FlashMessageContext>
     </ErrorBoundary>
   );

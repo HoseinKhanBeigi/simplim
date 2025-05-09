@@ -4,123 +4,191 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Domain-specific shape definitions
+const DOMAIN_SHAPES = {
+  coding: {
+    class: {
+      type: "rectangle",
+      style: "class-box",
+      properties: ["methods", "attributes", "visibility"],
+      defaultHeight: 120,
+      defaultWidth: 200
+    },
+    interface: {
+      type: "rectangle",
+      style: "interface-box",
+      properties: ["methods", "attributes", "visibility"],
+      defaultHeight: 100,
+      defaultWidth: 180
+    },
+    package: {
+      type: "rectangle",
+      style: "package-box",
+      properties: ["name", "elements"],
+      defaultHeight: 150,
+      defaultWidth: 250
+    },
+    component: {
+      type: "rectangle",
+      style: "component-box",
+      properties: ["name", "interfaces"],
+      defaultHeight: 80,
+      defaultWidth: 160
+    }
+  },
+  math: {
+    node: {
+      type: "circle",
+      style: "graph-node",
+      properties: ["value", "label"],
+      defaultRadius: 30
+    },
+    edge: {
+      type: "line",
+      style: "graph-edge",
+      properties: ["weight", "direction"],
+      defaultWidth: 2
+    },
+    triangle: {
+      type: "polygon",
+      style: "triangle",
+      properties: ["angles", "sides"],
+      defaultHeight: 100,
+      defaultWidth: 100
+    }
+  },
+  biology: {
+    cell: {
+      type: "ellipse",
+      style: "cell",
+      properties: ["type", "organelles"],
+      defaultHeight: 120,
+      defaultWidth: 80
+    },
+    molecule: {
+      type: "polygon",
+      style: "molecule",
+      properties: ["atoms", "bonds"],
+      defaultHeight: 60,
+      defaultWidth: 60
+    },
+    organ: {
+      type: "custom",
+      style: "organ",
+      properties: ["type", "function"],
+      defaultHeight: 100,
+      defaultWidth: 100
+    }
+  },
+  social: {
+    person: {
+      type: "circle",
+      style: "person",
+      properties: ["name", "role"],
+      defaultRadius: 40
+    },
+    institution: {
+      type: "rectangle",
+      style: "institution",
+      properties: ["name", "type"],
+      defaultHeight: 80,
+      defaultWidth: 160
+    },
+    relationship: {
+      type: "line",
+      style: "relationship",
+      properties: ["type", "strength"],
+      defaultWidth: 2
+    }
+  }
+};
+
 export async function POST(req) {
   try {
-    const { prompt } = await req.json();
+    const { prompt, domain } = await req.json();
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-4",
-      messages: [
-        {
-          role: "system",
-          content: `You are a code diagram analysis expert. Analyze the user's prompt and return a structured JSON response with the following format:
+    const systemPrompt = `You are a diagram analysis expert specializing in ${domain || 'general'} diagrams. Analyze the user's prompt and return a structured JSON response with the following format:
 {
+  "domain": "${domain || 'general'}",
   "shapes": [
     {
-      "type": "rectangle|ellipse|diamond|arrow|line",
+      "type": "rectangle|ellipse|diamond|arrow|line|circle|polygon|custom",
+      "style": "string",  // domain-specific style
       "x": number,  // x-coordinate (0-1000)
       "y": number,  // y-coordinate (0-1000)
       "width": number,  // width in pixels
       "height": number,  // height in pixels
+      "radius": number,  // for circles
       "backgroundColor": "hex color",  // e.g., "#e3f2fd"
       "text": "shape label",  // optional text label
       "strokeColor": "hex color",  // border color, default "#000000"
       "strokeWidth": number,  // border width, default 1
       "opacity": number,  // 0-100, default 100
-      "angle": number  // rotation angle in degrees, default 0
+      "angle": number,  // rotation angle in degrees, default 0
+      "properties": {  // domain-specific properties
+        "key": "value"
+      }
     }
   ],
   "connections": [
     {
-      "type": "arrow|line",
-      "style": "elbow|curved|sharp",  // arrow style
-      "start": [x, y],  // starting point coordinates
-      "end": [x, y],  // ending point coordinates
-      "strokeColor": "hex color",  // line color, default "#000000"
-      "strokeWidth": number,  // line width, default 1
-      "startArrowhead": "triangle|null",  // must be triangle if specified
-      "endArrowhead": "triangle|null",  // must be triangle if specified
-      "controlPoints": [  // for curved arrows, optional control points
+      "type": "arrow|line|relationship",
+      "style": "elbow|curved|sharp|dashed|dotted",
+      "start": [x, y],
+      "end": [x, y],
+      "strokeColor": "hex color",
+      "strokeWidth": number,
+      "startArrowhead": "triangle|null",
+      "endArrowhead": "triangle|null",
+      "controlPoints": [
         [x, y],
         [x, y]
-      ]
+      ],
+      "properties": {  // domain-specific properties
+        "key": "value"
+      }
     }
   ]
 }
 
 Consider the following guidelines:
 
-1. Shape Types:
-   - rectangle: for processes, steps, or components
-   - ellipse: for start/end points or important concepts
-   - diamond: for decision points or choices
-   - arrow: for directed connections
-   - line: for undirected connections
+1. Domain-Specific Shapes:
+${Object.entries(DOMAIN_SHAPES).map(([domain, shapes]) => `
+   ${domain.toUpperCase()}:
+   ${Object.entries(shapes).map(([shape, config]) => `
+   - ${shape}: ${config.type} with ${config.style} style
+     * Properties: ${config.properties.join(', ')}
+     * Default size: ${config.defaultHeight}x${config.defaultWidth || config.defaultRadius}`).join('\n')}`).join('\n')}
 
-2. Arrow Styles:
-   - elbow: Use for flowcharts, process diagrams, or when you need clear 90-degree turns
-     * Best for: Technical diagrams, flowcharts, system architectures
-     * Example: Process flows, decision trees, system components
-   
-   - curved: Use for organic flows, natural connections, or aesthetic diagrams
-     * Best for: Mind maps, relationship diagrams, conceptual flows
-     * Example: Brainstorming, concept maps, natural processes
-   
-   - sharp: Use for direct connections, technical relationships, or clear paths
-     * Best for: Technical schematics, direct relationships, clear hierarchies
-     * Example: Network diagrams, technical architectures, direct flows
-
-3. Layout:
-   - Arrange shapes in a logical flow (top to bottom, left to right)
+2. Layout Guidelines:
+   - Arrange shapes in a logical flow
    - Use consistent spacing (50-100 pixels between shapes)
    - Keep shapes within 0-1000 coordinate range
    - Avoid overlapping shapes
-   - Use appropriate sizes (width: 100-300px, height: 50-100px)
-   - Choose arrow style based on diagram type and readability
+   - Use appropriate sizes based on domain
+   - Choose connection style based on domain and readability
 
-4. Styling:
-   - Use a consistent color scheme
-   - Use light background colors for shapes
-   - Use dark colors for text and borders
-   - Add meaningful labels to shapes
-   - Choose arrow style that best represents the relationship
-   - Use appropriate arrowheads for direction
+3. Styling Guidelines:
+   - Use domain-appropriate colors
+   - Maintain consistent styling within domains
+   - Use appropriate line styles for connections
+   - Add meaningful labels and properties
+   - Consider domain-specific conventions
 
-5. Connections:
-   - Connect related shapes with appropriate arrow style
-   - Use elbow arrows for technical or process flows
-   - Use curved arrows for natural or conceptual flows
-   - Use sharp arrows for direct or technical relationships
-   - Keep connections clear and readable
+4. Connection Guidelines:
+   - Use domain-appropriate connection types
+   - Maintain clear relationships
    - Avoid crossing connections when possible
-   - Add control points for curved arrows when needed
-   - Always use triangular arrowheads when direction is needed
-   - Arrowheads must be triangular in shape for consistency
+   - Use appropriate arrowheads and line styles
+   - Add domain-specific properties to connections`;
 
-6. Text:
-   - Keep labels concise and clear
-   - Center text within shapes
-   - Use appropriate font sizes
-   - Break long text into multiple lines if needed
-
-7. Arrow Selection Guidelines:
-   - Use elbow arrows when:
-     * Showing process flows
-     * Creating flowcharts
-     * Drawing technical diagrams
-     * Need clear directional changes
-   
-   - Use curved arrows when:
-     * Showing natural flows
-     * Creating mind maps
-     * Drawing conceptual diagrams
-     * Need aesthetic appeal
-   
-   - Use sharp arrows when:
-     * Showing direct relationships
-     * Creating technical schematics
-     * Drawing network diagrams
-     * Need clear, straight connections`
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt
         },
         {
           role: "user",
@@ -149,4 +217,4 @@ Consider the following guidelines:
       },
     });
   }
-} 
+}

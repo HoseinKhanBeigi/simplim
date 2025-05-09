@@ -78,6 +78,7 @@ import ContentEditable from './ui/ContentEditable';
 import PDFExportPlugin from './plugins/PDFExportPlugin';
 import PasteFormatPlugin from './plugins/PasteFormatPlugin';
 import TextWrapPlugin from './plugins/TextWrapPlugin';
+import ContentGenerationPlugin from './plugins/ContentGenerationPlugin';
 
 const skipCollaborationInit =
   // @ts-expect-error
@@ -229,6 +230,7 @@ export default function Editor(): JSX.Element {
             <CollapsiblePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
+            <ContentGenerationPlugin />
             {floatingAnchorElem && (
               <>
                 <FloatingLinkEditorPlugin

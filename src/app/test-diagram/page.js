@@ -15,119 +15,227 @@ const ExcalidrawComponent = dynamic(
   { ssr: false }
 );
 
+// Domain-specific shape definitions
+const DOMAIN_SHAPES = {
+  qiskit: {
+    "quantum-register": {
+      type: "rectangle",
+      style: "quantum-register",
+      properties: ["qubits"],
+      defaultHeight: 40,
+      defaultWidth: 150,
+      defaultColors: {
+        background: "#e3f2fd",
+        stroke: "#2196f3"
+      }
+    },
+    "classical-register": {
+      type: "rectangle",
+      style: "classical-register",
+      properties: ["bits"],
+      defaultHeight: 40,
+      defaultWidth: 150,
+      defaultColors: {
+        background: "#fff8e1",
+        stroke: "#ffb300"
+      }
+    },
+    "quantum-gate": {
+      type: "rectangle",
+      style: "quantum-gate",
+      properties: ["gate", "target", "control"],
+      defaultHeight: 40,
+      defaultWidth: 60,
+      defaultColors: {
+        background: "#bbdefb",
+        stroke: "#1976d2"
+      }
+    },
+    "measurement": {
+      type: "rectangle",
+      style: "measurement",
+      properties: ["qubit", "classical_bit"],
+      defaultHeight: 40,
+      defaultWidth: 80,
+      defaultColors: {
+        background: "#ffe082",
+        stroke: "#f57c00"
+      }
+    }
+  }
+};
+
 // Test diagram data
 const testDiagram = {
+ 
   
   
-  
-  
+    "domain": "qiskit",
     "shapes": [
       {
         "type": "rectangle",
-        "x": 100,
-        "y": 80,
-        "width": 260,
-        "height": 70,
+        "style": "quantum-register",
+        "x": 50,
+        "y": 100,
+        "width": 150,
+        "height": 40,
         "backgroundColor": "#e3f2fd",
-        "text": "PDFContext (React Context)",
-        "strokeColor": "#1e88e5",
+        "text": "QuantumRegister(2)",
+        "strokeColor": "#2196f3",
         "strokeWidth": 2,
         "opacity": 100,
-        "angle": 0
+        "angle": 0,
+        "properties": {
+          "qubits": 2
+        }
       },
       {
         "type": "rectangle",
-        "x": 100,
-        "y": 200,
-        "width": 280,
-        "height": 80,
-        "backgroundColor": "#fff9c4",
-        "text": "PDFProvider (Context Provider)",
-        "strokeColor": "#fbc02d",
+        "style": "classical-register",
+        "x": 50,
+        "y": 160,
+        "width": 150,
+        "height": 40,
+        "backgroundColor": "#fff8e1",
+        "text": "ClassicalRegister(2)",
+        "strokeColor": "#ffb300",
         "strokeWidth": 2,
         "opacity": 100,
-        "angle": 0
+        "angle": 0,
+        "properties": {
+          "bits": 2
+        }
       },
       {
         "type": "rectangle",
-        "x": 100,
-        "y": 340,
-        "width": 260,
-        "height": 70,
-        "backgroundColor": "#c8e6c9",
-        "text": "usePDF() Hook",
-        "strokeColor": "#43a047",
+        "style": "quantum-gate",
+        "x": 250,
+        "y": 100,
+        "width": 60,
+        "height": 40,
+        "backgroundColor": "#bbdefb",
+        "text": "H",
+        "strokeColor": "#1976d2",
         "strokeWidth": 2,
         "opacity": 100,
-        "angle": 0
+        "angle": 0,
+        "properties": {
+          "gate": "Hadamard",
+          "target": "q[0]"
+        }
       },
       {
         "type": "rectangle",
-        "x": 500,
-        "y": 200,
-        "width": 320,
-        "height": 60,
-        "backgroundColor": "#f3e5f5",
-        "text": "useLexicalComposerContext()",
-        "strokeColor": "#9c27b0",
+        "style": "quantum-gate",
+        "x": 350,
+        "y": 100,
+        "width": 60,
+        "height": 40,
+        "backgroundColor": "#c5e1a5",
+        "text": "CX",
+        "strokeColor": "#388e3c",
         "strokeWidth": 2,
         "opacity": 100,
-        "angle": 0
+        "angle": 0,
+        "properties": {
+          "gate": "CNOT",
+          "control": "q[0]",
+          "target": "q[1]"
+        }
       },
       {
         "type": "rectangle",
-        "x": 500,
-        "y": 300,
-        "width": 320,
-        "height": 60,
-        "backgroundColor": "#ffe0b2",
-        "text": "editor.dispatchCommand(EXPORT_PDF_COMMAND)",
-        "strokeColor": "#ff9800",
+        "style": "measurement",
+        "x": 450,
+        "y": 100,
+        "width": 80,
+        "height": 40,
+        "backgroundColor": "#ffe082",
+        "text": "Measure q[0]",
+        "strokeColor": "#f57c00",
         "strokeWidth": 2,
         "opacity": 100,
-        "angle": 0
+        "angle": 0,
+        "properties": {
+          "qubit": "q[0]",
+          "classical_bit": "c[0]"
+        }
+      },
+      {
+        "type": "rectangle",
+        "style": "measurement",
+        "x": 450,
+        "y": 160,
+        "width": 80,
+        "height": 40,
+        "backgroundColor": "#ffe082",
+        "text": "Measure q[1]",
+        "strokeColor": "#f57c00",
+        "strokeWidth": 2,
+        "opacity": 100,
+        "angle": 0,
+        "properties": {
+          "qubit": "q[1]",
+          "classical_bit": "c[1]"
+        }
       }
     ],
     "connections": [
       {
         "type": "arrow",
         "style": "elbow",
-        "start": [230, 150],
-        "end": [230, 200],
-        "strokeColor": "#000000",
+        "start": [200, 120],
+        "end": [250, 120],
+        "strokeColor": "#9e9e9e",
         "strokeWidth": 2,
-        "startArrowhead": "null",
-        "endArrowhead": "triangle"
+        "startArrowhead": null,
+        "endArrowhead": "triangle",
+        "controlPoints": [],
+        "properties": {
+          "flow": "initialization"
+        }
       },
       {
         "type": "arrow",
         "style": "elbow",
-        "start": [230, 280],
-        "end": [230, 340],
-        "strokeColor": "#000000",
+        "start": [310, 120],
+        "end": [350, 120],
+        "strokeColor": "#9e9e9e",
         "strokeWidth": 2,
-        "startArrowhead": "null",
-        "endArrowhead": "triangle"
+        "startArrowhead": null,
+        "endArrowhead": "triangle",
+        "controlPoints": [],
+        "properties": {
+          "flow": "from H to CX"
+        }
       },
       {
         "type": "arrow",
-        "style": "sharp",
-        "start": [380, 220],
-        "end": [500, 230],
-        "strokeColor": "#000000",
+        "style": "elbow",
+        "start": [410, 120],
+        "end": [450, 120],
+        "strokeColor": "#9e9e9e",
         "strokeWidth": 2,
-        "startArrowhead": "null",
-        "endArrowhead": "triangle"
+        "startArrowhead": null,
+        "endArrowhead": "triangle",
+        "controlPoints": [],
+        "properties": {
+          "flow": "from CX to Measure q[0]"
+        }
       },
       {
         "type": "arrow",
-        "style": "sharp",
-        "start": [380, 340],
-        "end": [500, 330],
-        "strokeColor": "#000000",
+        "style": "elbow",
+        "start": [410, 120],
+        "end": [450, 180],
+        "strokeColor": "#9e9e9e",
         "strokeWidth": 2,
-        "startArrowhead": "null",
-        "endArrowhead": "triangle"
+        "startArrowhead": null,
+        "endArrowhead": "triangle",
+        "controlPoints": [],
+        "properties": {
+          "flow": "from CX to Measure q[1]"
+        }
       }
     ]
   
@@ -138,7 +246,29 @@ const testDiagram = {
   
   
   
+  
+  
+    
+  
+  
 };
+
+// Properties display component
+function PropertiesDisplay({ properties, style }) {
+  if (!properties) return null;
+  
+  return (
+    <div className="absolute bg-white p-2 rounded shadow-lg border border-gray-200 text-sm">
+      <div className="font-semibold mb-1">{style}</div>
+      {Object.entries(properties).map(([key, value]) => (
+        <div key={key} className="flex gap-2">
+          <span className="text-gray-600">{key}:</span>
+          <span className="text-gray-800">{value}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function TestDiagram() {
   const [excalidrawAPI, setExcalidrawAPI] = useState(null);
@@ -165,6 +295,7 @@ export default function TestDiagram() {
 
   const createShape = ({ 
     type, 
+    style,
     x, 
     y, 
     width, 
@@ -174,10 +305,20 @@ export default function TestDiagram() {
     strokeColor = "#000000",
     strokeWidth = 1,
     opacity = 100,
-    angle = 0
+    angle = 0,
+    properties = {}
   }) => {
     const now = Date.now();
     const rand = () => Math.floor(Math.random() * 100000);
+    
+    // Apply domain-specific styling if available
+    const domainStyle = DOMAIN_SHAPES.qiskit?.[style];
+    if (domainStyle) {
+      backgroundColor = domainStyle.defaultColors?.background || backgroundColor;
+      strokeColor = domainStyle.defaultColors?.stroke || strokeColor;
+      width = width || domainStyle.defaultWidth;
+      height = height || domainStyle.defaultHeight;
+    }
     
     const shape = {
       id: crypto.randomUUID(),
@@ -190,8 +331,8 @@ export default function TestDiagram() {
       strokeColor,
       backgroundColor,
       fillStyle: "solid",
-      strokeWidth,
-      roughness: 1,
+      strokeWidth: 1,
+      roughness: 0,
       opacity,
       groupIds: [],
       seed: rand(),
@@ -202,27 +343,52 @@ export default function TestDiagram() {
       updated: now,
       link: null,
       locked: false,
+      customData: {
+        style,
+        properties
+      }
     };
 
     if (text) {
-      const fontSize = 20;
-      const lineHeight = 1.2;
+      // Text styling constants
+      const mainTextStyle = {
+        fontSize: 11, // Smaller font size
+        lineHeight: 1.2,
+        fontFamily: 'normal', // Normal font
+        fontWeight: 400, // Normal weight
+        charWidth: 0.6,
+        strokeWidth: 0.5,
+        color: "#000000"
+      };
+
+      const propertiesTextStyle = {
+        fontSize: 10, // Even smaller for properties
+        lineHeight: 1.2,
+        fontFamily: 'normal', // Normal font
+        fontWeight: 400, // Normal weight
+        charWidth: 0.6,
+        strokeWidth: 0.5,
+        color: "#666666"
+      };
+
+      // Calculate main text dimensions
       const lines = text.split("\n");
-      const textWidth = Math.max(...lines.map(line => line.length)) * (fontSize * 0.6);
-      const textHeight = fontSize * lineHeight * lines.length;
+      const textWidth = Math.max(...lines.map(line => line.length)) * (mainTextStyle.fontSize * mainTextStyle.charWidth);
+      const finalTextWidth = Math.min(textWidth, width * 0.9);
+      const textHeight = mainTextStyle.fontSize * mainTextStyle.lineHeight * lines.length;
 
       const textElement = {
         id: crypto.randomUUID(),
         type: "text",
-        x: x + width/2 - textWidth/2,
+        x: x + width/2 - finalTextWidth/2,
         y: y + height/2 - textHeight/2,
-        width: textWidth,
+        width: finalTextWidth,
         height: textHeight,
         angle: 0,
-        strokeColor: "#000000",
+        strokeColor: mainTextStyle.color,
         backgroundColor: "transparent",
         fillStyle: "solid",
-        strokeWidth: 1,
+        strokeWidth: mainTextStyle.strokeWidth,
         roughness: 0,
         opacity: 100,
         groupIds: [],
@@ -234,18 +400,68 @@ export default function TestDiagram() {
         updated: now,
         link: null,
         locked: false,
-        fontSize,
-        fontFamily: 1,
+        fontSize: mainTextStyle.fontSize,
+        fontFamily: mainTextStyle.fontFamily,
+        fontWeight: mainTextStyle.fontWeight,
         textAlign: "center",
         verticalAlign: "middle",
-        baseline: fontSize,
+        baseline: mainTextStyle.fontSize,
         text,
         raw: text,
         originalText: text,
-        lineHeight: lineHeight,
+        lineHeight: mainTextStyle.lineHeight,
       };
 
-      return [shape, textElement];
+      // Calculate properties text dimensions
+      const propertiesText = Object.entries(properties)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join('\n');
+
+      const propertiesWidth = Math.min(
+        Math.max(...Object.entries(properties).map(([k, v]) => (k + v).length)) * 
+          (propertiesTextStyle.fontSize * propertiesTextStyle.charWidth),
+        width * 0.9
+      );
+      const propertiesHeight = propertiesTextStyle.fontSize * 
+        propertiesTextStyle.lineHeight * 
+        Object.keys(properties).length;
+
+      const propertiesElement = {
+        id: crypto.randomUUID(),
+        type: "text",
+        x: x + width/2 - propertiesWidth/2,
+        y: y + height + 2,
+        width: propertiesWidth,
+        height: propertiesHeight,
+        angle: 0,
+        strokeColor: propertiesTextStyle.color,
+        backgroundColor: "transparent",
+        fillStyle: "solid",
+        strokeWidth: propertiesTextStyle.strokeWidth,
+        roughness: 0,
+        opacity: 80,
+        groupIds: [],
+        seed: rand(),
+        version: 1,
+        versionNonce: rand(),
+        isDeleted: false,
+        boundElements: [],
+        updated: now,
+        link: null,
+        locked: false,
+        fontSize: propertiesTextStyle.fontSize,
+        fontFamily: propertiesTextStyle.fontFamily,
+        fontWeight: propertiesTextStyle.fontWeight,
+        textAlign: "center",
+        verticalAlign: "top",
+        baseline: propertiesTextStyle.fontSize,
+        text: propertiesText,
+        raw: propertiesText,
+        originalText: propertiesText,
+        lineHeight: propertiesTextStyle.lineHeight,
+      };
+
+      return [shape, textElement, propertiesElement];
     }
 
     return [shape];
@@ -260,7 +476,8 @@ export default function TestDiagram() {
     strokeWidth = 1,
     startArrowhead = null,
     endArrowhead = "triangle",
-    controlPoints = []
+    controlPoints = [],
+    properties = {}
   }) => {
     const now = Date.now();
     const rand = () => Math.floor(Math.random() * 100000);
@@ -275,13 +492,8 @@ export default function TestDiagram() {
         [midX - start[0], end[1] - start[1]],
         [end[0] - start[0], end[1] - start[1]]
       ];
-    } else if (style === "curved" && controlPoints.length > 0) {
-      points = [
-        [0, 0],
-        ...controlPoints.map(([x, y]) => [x - start[0], y - start[1]]),
-        [end[0] - start[0], end[1] - start[1]]
-      ];
     } else {
+      // Always use straight lines for non-elbow connections
       points = [
         [0, 0],
         [end[0] - start[0], end[1] - start[1]]
@@ -299,8 +511,8 @@ export default function TestDiagram() {
       strokeColor,
       backgroundColor: "transparent",
       fillStyle: "solid",
-      strokeWidth,
-      roughness: 1,
+      strokeWidth: 2, // Increased stroke width for better visibility
+      roughness: 0, // Set to 0 for clean lines
       opacity: 100,
       groupIds: [],
       seed: rand(),
@@ -312,6 +524,10 @@ export default function TestDiagram() {
       points,
       startArrowhead,
       endArrowhead,
+      customData: {
+        style,
+        properties
+      }
     };
   };
 
