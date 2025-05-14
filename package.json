@@ -38,7 +38,7 @@
     "react-dom": "18.2.0",
     "react-dropzone": "^14.3.8",
     "react-hot-toast": "^2.5.2",
-    "react-pdf": "^7.7.0",
+    "react-pdf": "^7.7.3",
     "reactflow": "^11.11.4",
     "y-websocket": "^1.5.4",
     "yjs": ">=13.5.42"
