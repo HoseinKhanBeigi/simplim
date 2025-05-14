@@ -7,7 +7,7 @@ import AIInsightsPanel from "../AIInsightsPanel";
 import ExcalidrawViewer from "../ExcalidrawViewer";
 import { Toaster, toast } from "react-hot-toast";
 import dynamic from "next/dynamic";
-import testData from '../../test-content/test-data.json';
+import testData from "../../test-content/test-data.json";
 
 // Dynamically import PlaygroundApp with no SSR
 const PlaygroundApp = dynamic(() => import("../lexical/App"), {
@@ -19,7 +19,7 @@ const PlaygroundApp = dynamic(() => import("../lexical/App"), {
   ),
 });
 
-const AppLayout = () => {
+const AppLayout = ({ children }) => {
   const [user, setUser] = useState(null);
   const [selectedText, setSelectedText] = useState("");
   const [currentFile, setCurrentFile] = useState(null);
@@ -101,7 +101,6 @@ const AppLayout = () => {
 
   // Load PDFs from IndexedDB on component mount
 
-
   const handleLogin = async ({ email, password }) => {
     try {
       // TODO: Implement actual authentication
@@ -165,7 +164,6 @@ const AppLayout = () => {
       console.error("File upload error:", error);
     }
   };
-
 
   const handleClarification = async (text) => {
     if (
@@ -268,9 +266,9 @@ const AppLayout = () => {
     setIsEditing(!isEditing);
   };
 
-  if (!user) {
-    return <AuthLayout onLogin={handleLogin} onGuestMode={handleGuestMode} />;
-  }
+  // if (!user) {
+  //   return <AuthLayout onLogin={handleLogin} onGuestMode={handleGuestMode} />;
+  // }
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
@@ -289,30 +287,17 @@ const AppLayout = () => {
           className="border-r border-gray-200 bg-white overflow-hidden"
           style={{ width: `${leftPanelWidth}%` }}
         >
-          {activeTab === "draw" && (
-            <div className="h-full">
-              <ExcalidrawViewer
-                onSave={(data) => {
-                  console.log("Drawing saved:", data);
-                  toast.success("Drawing saved successfully!");
-                }}
-              />
-            </div>
-          )}
-        
-          <div className="mb-4">
-            <PlaygroundApp initialContent={testData.content} />
-          </div>
+            {children}
         </div>
 
-        {/* Resizer */}
         <div
           className={`w-1 cursor-col-resize bg-transparent hover:bg-blue-500 active:bg-blue-600 transition-colors
             ${isResizing ? "bg-blue-600" : ""}`}
           onMouseDown={handleMouseDown}
-        />
+        >
+        
+        </div>
 
-        {/* Right Panel */}
         <div
           className="bg-white overflow-hidden"
           style={{ width: `${100 - leftPanelWidth}%` }}
@@ -320,10 +305,10 @@ const AppLayout = () => {
           <AIInsightsPanel
             selectedText={selectedText}
             insights={insights}
-            isGuest={user.isGuest}
-            userRole={user.role}
-            clarificationsUsed={user.clarificationsUsed}
-            clarificationsLimit={user.clarificationsLimit}
+            // isGuest={user.isGuest}
+            // userRole={user.role}
+            // clarificationsUsed={user.clarificationsUsed}
+            // clarificationsLimit={user.clarificationsLimit}
             onClarify={handleClarification}
             onUpgrade={handleUpgrade}
           />

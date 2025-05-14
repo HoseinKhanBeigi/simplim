@@ -50,7 +50,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <Link 
-              href="/simplim" 
+              href="/viewer" 
               className="inline-block bg-[#0078D4] text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#0062ab] transform hover:scale-105 transition-all"
             >
               Get Started
