@@ -14,12 +14,17 @@ const UploadArea = ({ handleFileUpload, uploadingFile, isPremium }) => {
         }
       };
       handleFileUpload('pdf')(event)
-        .then(() => {
-          setUploadSuccess(file.name);
-          // Clear success message after 3 seconds
-          setTimeout(() => setUploadSuccess(null), 3000);
+        .then((success) => {
+          if (success) {
+            setUploadSuccess(file.name);
+            // Clear success message after 3 seconds
+            setTimeout(() => setUploadSuccess(null), 3000);
+          }
         })
-        .catch(() => setUploadSuccess(null));
+        .catch((error) => {
+          console.error('Upload error:', error);
+          setUploadSuccess(null);
+        });
     }
   }, [handleFileUpload]);
 
@@ -32,7 +37,7 @@ const UploadArea = ({ handleFileUpload, uploadingFile, isPremium }) => {
   });
 
   return (
-    <div className="p-1 bg-white">
+    <div className="p-1 bg-white w-full">
       <div
         {...getRootProps()}
         className={`

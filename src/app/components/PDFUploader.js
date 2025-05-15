@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useCallback } from 'react';
 import FileViewer from './PDFViewer';
+import UploadArea from './Upload';
 
 const PDFUploader = () => {
   const [file, setFile] = useState(null);
@@ -8,8 +9,17 @@ const PDFUploader = () => {
   const [numPages, setNumPages] = useState(0);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [zoom, setZoom] = useState(1);
 
-  const handleFileChange = useCallback((event) => {
+  const handleZoomIn = useCallback(() => {
+    setZoom(prev => Math.min(prev + 0.25, 3));
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    setZoom(prev => Math.max(prev - 0.25, 0.5));
+  }, []);
+
+  const handleFileUpload = useCallback((type) => async (event) => {
     const selectedFile = event.target.files[0];
     if (!selectedFile) return;
 
@@ -36,11 +46,13 @@ const PDFUploader = () => {
         name: selectedFile.name
       });
       setCurrentPage(1);
+      setIsLoading(false);
+      return true;
     } catch (err) {
       setError('Error processing file. Please try again.');
       console.error('File processing error:', err);
-    } finally {
       setIsLoading(false);
+      return false;
     }
   }, []);
 
@@ -68,67 +80,84 @@ const PDFUploader = () => {
     }
   }, [currentPage]);
 
+  const uploadingFile = isLoading ? 'pdf' : null;
+  const isPremium = true;
+
   return (
-    <div className="flex flex-col items-center p-4">
-      <div className="mb-4 w-full max-w-md">
-        <input
-          type="file"
-          accept=".pdf"
-          onChange={handleFileChange}
-          disabled={isLoading}
-          className="block w-full text-sm text-gray-500
-            file:mr-4 file:py-2 file:px-4
-            file:rounded-full file:border-0
-            file:text-sm file:font-semibold
-            file:bg-blue-50 file:text-blue-700
-            hover:file:bg-blue-100
-            disabled:opacity-50 disabled:cursor-not-allowed"
+    <div className="flex flex-col items-center ">
+    
+        <UploadArea
+          handleFileUpload={handleFileUpload}
+          uploadingFile={uploadingFile}
+          isPremium={isPremium}
         />
-      </div>
-
-      {error && (
-        <div className="text-red-500 mb-4 p-4 bg-red-50 rounded-lg">
-          {error}
-        </div>
-      )}
-
-      {isLoading && (
-        <div className="flex justify-center items-center p-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-          <span className="ml-3">Loading...</span>
-        </div>
-      )}
-
-      {file && !isLoading && (
-        <div className="w-full">
-          <FileViewer
-            file={file}
-            currentPage={currentPage}
-            onLoadSuccess={handleLoadSuccess}
-            onLoadError={handleLoadError}
-          />
-          
-          {numPages > 0 && (
-            <div className="mt-4 flex justify-center items-center gap-4">
+    
+      {file && (
+        <div className="w-full mt-4">
+          <div className="flex items-center justify-between mb-4 px-4">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleZoomOut}
+                className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                title="Zoom Out"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
+                </svg>
+              </button>
+              <span className="text-sm text-gray-600">{Math.round(zoom * 100)}%</span>
+              <button
+                onClick={handleZoomIn}
+                className="p-2 rounded-md hover:bg-gray-100 transition-colors"
+                title="Zoom In"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            <div className="flex items-center space-x-2">
               <button
                 onClick={prevPage}
-                disabled={currentPage <= 1 || isLoading}
-                className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
+                disabled={currentPage <= 1}
+                className={`p-2 rounded-md transition-colors ${
+                  currentPage <= 1 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title="Previous Page"
               >
-                Previous
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
               </button>
-              <span className="py-2">
+              <span className="text-sm text-gray-600">
                 Page {currentPage} of {numPages}
               </span>
               <button
                 onClick={nextPage}
-                disabled={currentPage >= numPages || isLoading}
-                className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
+                disabled={currentPage >= numPages}
+                className={`p-2 rounded-md transition-colors ${
+                  currentPage >= numPages 
+                    ? 'text-gray-400 cursor-not-allowed' 
+                    : 'text-gray-600 hover:bg-gray-100'
+                }`}
+                title="Next Page"
               >
-                Next
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                </svg>
               </button>
             </div>
-          )}
+          </div>
+          <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
+            <FileViewer
+              file={file}
+              currentPage={currentPage}
+              onLoadSuccess={handleLoadSuccess}
+              onLoadError={handleLoadError}
+            />
+          </div>
         </div>
       )}
     </div>
