@@ -109,7 +109,14 @@ function FileViewer({
       <div
         ref={containerRef}
         className="relative pdf-viewer select-none"
-        style={{ cursor: "text", display: "flex", justifyContent: "center", alignItems: "center" }}
+        style={{ 
+          cursor: "text", 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "flex-start",
+          width: "100%",
+          padding: "1rem"
+        }}
       >
         <PDFDocument
           file={file.url}
@@ -132,7 +139,7 @@ function FileViewer({
             key={`page-${currentPage}`}
             pageNumber={currentPage}
             scale={scale}
-            className="pdf-page"
+            className="pdf-page shadow-lg"
             onLoadSuccess={handlePageLoadSuccess}
             renderTextLayer={true}
             renderAnnotationLayer={true}

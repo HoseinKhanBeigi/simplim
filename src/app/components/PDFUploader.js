@@ -150,13 +150,15 @@ const PDFUploader = () => {
               </button>
             </div>
           </div>
-          <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top center' }}>
-            <FileViewer
-              file={file}
-              currentPage={currentPage}
-              onLoadSuccess={handleLoadSuccess}
-              onLoadError={handleLoadError}
-            />
+          <div className="relative w-full overflow-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+            <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top center', minHeight: '100%' }}>
+              <FileViewer
+                file={file}
+                currentPage={currentPage}
+                onLoadSuccess={handleLoadSuccess}
+                onLoadError={handleLoadError}
+              />
+            </div>
           </div>
         </div>
       )}
