@@ -77,21 +77,26 @@ const Header = ({ user, onLogout, onUpgrade, activeTab, onTabChange, onFileUploa
               </button>
               <button
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === "draw"
+                  activeTab === "EasyChart"
                     ? "bg-blue-50 text-blue-600 border border-blue-200"
                     : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
                 }`}
-                onClick={() => onTabChange("draw")}
+                onClick={() => onTabChange("EasyChart")}
               >
-                Draw
+                EasyChart
+              </button>
+              <button
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === "FlowBuilder"
+                    ? "bg-blue-50 text-blue-600 border border-blue-200"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                }`}
+                onClick={() => onTabChange("FlowBuilder")}
+              >
+                FlowBuilder
               </button>
 
-              <button
-                className="px-2.5 py-1 text-xs bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors font-medium"
-                onClick={handleFileClick}
-              >
-                Browse Files
-              </button>
+           
               {/* <input
                 type="file"
                 ref={fileInputRef}
