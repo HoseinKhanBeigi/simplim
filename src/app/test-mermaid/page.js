@@ -5,50 +5,56 @@ import mermaid from 'mermaid';
 
 export default function TestMermaid() {
   const [diagramCode, setDiagramCode] = useState(`flowchart TD
-    %% Event Handlers
-    Start([Start]) --> Init[Initialize Component]
-    Init --> RegisterEvents[Register Event Handlers]
-    
-    %% Click Event Flow
-    RegisterEvents --> ClickHandler{Click Event}
-    ClickHandler -->|Single Click| ToggleSelect[Toggle Selection]
-    ClickHandler -->|Double Click| OpenModal[Open Excalidraw Modal]
-    
-    %% Modal Events
-    OpenModal --> ModalEvents{Modal Events}
-    ModalEvents -->|Save| SaveData[Save Drawing Data]
-    ModalEvents -->|Delete| DeleteNode[Delete Node]
-    ModalEvents -->|Close| CloseModal[Close Modal]
-    
-    %% Resize Events
-    RegisterEvents --> ResizeHandler{Resize Event}
-    ResizeHandler -->|Start| StartResize[Start Resizing]
-    StartResize --> ResizeOps[Resize Operations]
-    ResizeOps -->|End| EndResize[End Resizing]
-    EndResize --> UpdateDimensions[Update Node Dimensions]
-    
-    %% Selection Events
-    ToggleSelect --> SelectionState{Selection State}
-    SelectionState -->|Selected| ShowResizer[Show Image Resizer]
-    SelectionState -->|Not Selected| HideResizer[Hide Image Resizer]
-    
-    %% Data Flow
-    SaveData --> UpdateEditor[Update Editor State]
-    DeleteNode --> RemoveNode[Remove Node from Editor]
-    CloseModal --> CheckElements{Has Elements?}
-    CheckElements -->|No| RemoveNode
-    CheckElements -->|Yes| KeepNode[Keep Node]
-    
+    %% Main Application Structure
+    Start([FastAPI App]) --> AuthRouter[Auth Router]
+    Start --> PDFRouter[PDF Router]
+    Start --> HealthEndpoints[Health Endpoints]
+    Start --> MonitorEndpoints[Monitor Endpoints]
+
+    %% Auth Router Endpoints
+    AuthRouter --> AuthLogin[POST /auth/login]
+    AuthRouter --> AuthRegister[POST /auth/register]
+    AuthRouter --> AuthMe[GET /auth/me]
+
+    %% PDF Router Endpoints
+    PDFRouter --> PDFUpload[POST /pdf/upload]
+    PDFRouter --> PDFList[GET /pdf/list]
+    PDFRouter --> PDFDelete[DELETE /pdf/id]
+
+    %% Health Endpoints
+    HealthEndpoints --> Root[GET /]
+    HealthEndpoints --> Health[GET /health]
+    HealthEndpoints --> DBStatus[GET /db-status]
+
+    %% Monitor Endpoints
+    MonitorEndpoints --> MonitorDB[GET /monitor/db]
+    MonitorEndpoints --> MonitorUsers[GET /monitor/users]
+
+    %% Database Operations
+    AuthLogin --> DB[(Database)]
+    AuthRegister --> DB
+    AuthMe --> DB
+    PDFUpload --> DB
+    PDFList --> DB
+    PDFDelete --> DB
+    DBStatus --> DB
+    MonitorDB --> DB
+    MonitorUsers --> DB
+
+    %% Error Handling
+    DB --> ErrorHandler[Error Handler]
+    ErrorHandler --> ErrorResponse[Error Response]
+
     %% Styling
-    classDef event fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
-    classDef handler fill:#bbdefb,stroke:#1976d2,stroke-width:2px
-    classDef state fill:#ffe082,stroke:#f57c00,stroke-width:2px
-    classDef action fill:#fff8e1,stroke:#ffb300,stroke-width:2px
+    classDef endpoint fill:#e3f2fd,stroke:#2196f3,stroke-width:2px
+    classDef router fill:#bbdefb,stroke:#1976d2,stroke-width:2px
+    classDef db fill:#ffe082,stroke:#f57c00,stroke-width:2px
+    classDef error fill:#ffcdd2,stroke:#d32f2f,stroke-width:2px
     
-    class Start,Init,RegisterEvents event
-    class ClickHandler,ResizeHandler,ModalEvents,SelectionState,CheckElements handler
-    class ToggleSelect,OpenModal,StartResize,EndResize state
-    class SaveData,DeleteNode,CloseModal,UpdateDimensions,ShowResizer,HideResizer,UpdateEditor,RemoveNode,KeepNode action`);
+    class Start,Root,Health,DBStatus,MonitorDB,MonitorUsers endpoint
+    class AuthRouter,PDFRouter router
+    class DB db
+    class ErrorHandler,ErrorResponse error`);
 
   const [svg, setSvg] = useState('');
   const [error, setError] = useState(null);

@@ -1,13 +1,25 @@
 import React, { useState, useEffect } from 'react';
+import useStore from '../../store/useStore';
+import { useRouter } from 'next/navigation';
 
-const AuthLayout = ({ onLogin, onGuestMode }) => {
+const AuthLayout = ({ onGuestMode }) => {
+  const router = useRouter();
   const [isSignUp, setIsSignUp] = useState(false);
   const [isResetPassword, setIsResetPassword] = useState(false);
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
   const [resetSent, setResetSent] = useState(false);
+
+  const { error, isLoading, login, register, setError, isAuthenticated } = useStore();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, router]);
 
   useEffect(() => {
     // Auto-focus email input on mount
@@ -15,41 +27,53 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
     if (emailInput) emailInput.focus();
   }, [isSignUp, isResetPassword]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError(null);
 
-    if (isResetPassword) {
-      if (!email) {
-        setError('Please enter your email address');
+    try {
+      if (isResetPassword) {
+        if (!email) {
+          setError('Please enter your email address');
+          return;
+        }
+        // TODO: Implement password reset
+        setResetSent(true);
         return;
       }
-      // TODO: Implement password reset
-      setResetSent(true);
-      return;
-    }
 
-    if (!email || !password) {
-      setError('Please fill in all fields');
-      return;
-    }
-
-    if (isSignUp) {
-      if (password !== confirmPassword) {
-        setError('Passwords do not match');
-        return;
+      if (isSignUp) {
+        if (!email || !username || !password) {
+          setError('Please fill in all fields');
+          return;
+        }
+        if (password !== confirmPassword) {
+          setError('Passwords do not match');
+          return;
+        }
+        console.log('Registration attempt with:', { email, username, password });
+        await register(email, username, password);
+      } else {
+        // Handle login
+        if (!username || !password) {
+          setError('Please fill in all fields');
+          return;
+        }
+        console.log('Login attempt with:', { username, password });
+        await login(username, password);
       }
-      // Handle sign up logic
+    } catch (error) {
+      console.error('Auth error:', error);
+      setError(error.message || 'An error occurred. Please try again.');
     }
-
-    onLogin({ email, password });
   };
 
   const resetForm = () => {
     setEmail('');
+    setUsername('');
     setPassword('');
     setConfirmPassword('');
-    setError('');
+    setError(null);
     setResetSent(false);
   };
 
@@ -93,17 +117,35 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
               </div>
             ) : (
               <>
+                {isSignUp && (
+                  <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                      Email address
+                    </label>
+                    <input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                )}
+
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                    Email address
+                  <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                    Username
                   </label>
                   <input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    id="username"
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -119,6 +161,7 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
                       onChange={(e) => setPassword(e.target.value)}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 )}
@@ -135,6 +178,7 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       required
+                      disabled={isLoading}
                     />
                   </div>
                 )}
@@ -144,15 +188,26 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
             <div>
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                disabled={isLoading}
+                className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                  isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
-                {isResetPassword
-                  ? resetSent
-                    ? 'Resend Reset Link'
-                    : 'Send Reset Link'
-                  : isSignUp
-                  ? 'Sign Up'
-                  : 'Sign In'}
+                {isLoading ? (
+                  <div className="flex items-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </div>
+                ) : isResetPassword
+                ? resetSent
+                  ? 'Resend Reset Link'
+                  : 'Send Reset Link'
+                : isSignUp
+                ? 'Sign Up'
+                : 'Sign In'}
               </button>
             </div>
 
@@ -162,6 +217,7 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
                   type="button"
                   onClick={() => switchMode(isSignUp ? 'signin' : 'signup')}
                   className="text-sm text-blue-600 hover:text-blue-500"
+                  disabled={isLoading}
                 >
                   {isSignUp ? 'Already have an account?' : "Don't have an account?"}
                 </button>
@@ -170,6 +226,7 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
                     type="button"
                     onClick={() => switchMode('reset')}
                     className="text-sm text-blue-600 hover:text-blue-500"
+                    disabled={isLoading}
                   >
                     Forgot password?
                   </button>
@@ -182,6 +239,7 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
                 type="button"
                 onClick={() => switchMode('signin')}
                 className="w-full text-sm text-blue-600 hover:text-blue-500"
+                disabled={isLoading}
               >
                 Back to Sign In
               </button>
@@ -201,7 +259,10 @@ const AuthLayout = ({ onLogin, onGuestMode }) => {
                 <button
                   type="button"
                   onClick={onGuestMode}
-                  className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  disabled={isLoading}
+                  className={`w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                  }`}
                 >
                   Continue as Guest
                 </button>

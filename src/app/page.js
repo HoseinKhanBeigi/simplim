@@ -2,7 +2,7 @@
 import React from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-
+import ProtectedRoute from "./components/ProtectedRoute";
 // Icons
 const UploadIcon = () => (
   <svg className="w-12 h-12 text-[#0078D4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +50,7 @@ export default function Home() {
             transition={{ duration: 0.6, delay: 0.4 }}
           >
             <Link 
-              href="/viewer" 
+              href="/app" 
               className="inline-block bg-[#0078D4] text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#0062ab] transform hover:scale-105 transition-all"
             >
               Get Started
@@ -117,7 +117,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-2xl font-bold mb-8">Ready to simplify your papers?</h3>
           <Link 
-            href="/simplim" 
+            href="/app" 
             className="inline-block bg-[#0078D4] text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-[#0062ab] transform hover:scale-105 transition-all"
           >
             Try Simplim Now

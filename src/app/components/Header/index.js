@@ -1,15 +1,19 @@
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import useStore from "../../store/useStore";
 
 // Configure worker
 // if (typeof window !== "undefined") {
 //   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 // }
 
-const Header = ({ user, onLogout, onUpgrade, activeTab, onTabChange, onFileUpload }) => {
+const Header = ({ activeTab, onTabChange }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const fileInputRef = useRef(null);
+
+  const { user, logout } = useStore();
+ 
 
   const handleFileClick = () => {
     fileInputRef.current?.click();
@@ -182,7 +186,7 @@ const Header = ({ user, onLogout, onUpgrade, activeTab, onTabChange, onFileUploa
                   </a>
                   {user?.role === "free" && (
                     <button
-                      onClick={onUpgrade}
+                      onClick={() => {/* TODO: Implement upgrade */}}
                       className="block w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 font-medium"
                       role="menuitem"
                     >
@@ -190,7 +194,7 @@ const Header = ({ user, onLogout, onUpgrade, activeTab, onTabChange, onFileUploa
                     </button>
                   )}
                   <button
-                    onClick={onLogout}
+                    onClick={logout}
                     className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                     role="menuitem"
                   >

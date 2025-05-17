@@ -78,174 +78,109 @@ const nodeTypes = {
 };
 
 const initialNodes = [
-  // Event Nodes
+  // Main Service Structure
   {
-    id: 'start',
+    id: 'storage-service',
     type: 'event',
-    data: { label: 'Start', description: 'Initial state' },
+    data: { label: 'SupabaseStorageService', description: 'File storage management' },
     position: { x: 250, y: 50 },
   },
   {
     id: 'init',
-    type: 'event',
-    data: { label: 'Initialize Component', description: 'Component initialization' },
+    type: 'state',
+    data: { label: 'Initialization', description: 'Configure Supabase client' },
     position: { x: 250, y: 150 },
   },
   {
-    id: 'register',
-    type: 'event',
-    data: { label: 'Register Event Handlers', description: 'Event registration' },
+    id: 'client',
+    type: 'state',
+    data: { label: 'Supabase Client', description: 'Lazy initialization' },
     position: { x: 250, y: 250 },
   },
-
-  // Handler Nodes
   {
-    id: 'click-handler',
+    id: 'upload',
     type: 'handler',
-    data: { label: 'Click Event', description: 'Handle click events' },
+    data: { label: 'Upload File', description: 'Store files in Supabase' },
     position: { x: 100, y: 350 },
   },
   {
-    id: 'resize-handler',
+    id: 'delete',
     type: 'handler',
-    data: { label: 'Resize Event', description: 'Handle resize events' },
+    data: { label: 'Delete File', description: 'Remove files from storage' },
     position: { x: 400, y: 350 },
   },
   {
-    id: 'modal-events',
+    id: 'list',
     type: 'handler',
-    data: { label: 'Modal Events', description: 'Handle modal interactions' },
-    position: { x: 250, y: 450 },
+    data: { label: 'List Files', description: 'Get user files' },
+    position: { x: 100, y: 450 },
   },
   {
-    id: 'selection-state',
+    id: 'metadata',
     type: 'handler',
-    data: { label: 'Selection State', description: 'Manage selection state' },
-    position: { x: 100, y: 550 },
+    data: { label: 'Get Metadata', description: 'File information' },
+    position: { x: 400, y: 450 },
   },
   {
-    id: 'check-elements',
+    id: 'url',
     type: 'handler',
-    data: { label: 'Has Elements?', description: 'Check for existing elements' },
-    position: { x: 400, y: 550 },
-  },
-
-  // State Nodes
-  {
-    id: 'toggle-select',
-    type: 'state',
-    data: { label: 'Toggle Selection', description: 'Toggle selection state' },
-    position: { x: 50, y: 450 },
-  },
-  {
-    id: 'open-modal',
-    type: 'state',
-    data: { label: 'Open Excalidraw Modal', description: 'Open drawing modal' },
-    position: { x: 150, y: 450 },
-  },
-  {
-    id: 'start-resize',
-    type: 'state',
-    data: { label: 'Start Resizing', description: 'Begin resize operation' },
-    position: { x: 350, y: 450 },
-  },
-  {
-    id: 'end-resize',
-    type: 'state',
-    data: { label: 'End Resizing', description: 'Complete resize operation' },
-    position: { x: 450, y: 450 },
-  },
-
-  // Action Nodes
-  {
-    id: 'save-data',
-    type: 'action',
-    data: { label: 'Save Drawing Data', description: 'Save current drawing' },
-    position: { x: 150, y: 550 },
-  },
-  {
-    id: 'delete-node',
-    type: 'action',
-    data: { label: 'Delete Node', description: 'Remove node' },
+    data: { label: 'Get URL', description: 'Public file URL' },
     position: { x: 250, y: 550 },
   },
   {
-    id: 'close-modal',
+    id: 'error-handling',
     type: 'action',
-    data: { label: 'Close Modal', description: 'Close drawing modal' },
-    position: { x: 350, y: 550 },
-  },
-  {
-    id: 'update-dimensions',
-    type: 'action',
-    data: { label: 'Update Node Dimensions', description: 'Update size' },
-    position: { x: 450, y: 550 },
-  },
-  {
-    id: 'show-resizer',
-    type: 'action',
-    data: { label: 'Show Image Resizer', description: 'Display resize controls' },
-    position: { x: 50, y: 650 },
-  },
-  {
-    id: 'hide-resizer',
-    type: 'action',
-    data: { label: 'Hide Image Resizer', description: 'Hide resize controls' },
-    position: { x: 150, y: 650 },
-  },
-  {
-    id: 'update-editor',
-    type: 'action',
-    data: { label: 'Update Editor State', description: 'Update editor' },
+    data: { label: 'Error Handling', description: 'Log and handle errors' },
     position: { x: 250, y: 650 },
   },
   {
-    id: 'remove-node',
+    id: 'logging',
     type: 'action',
-    data: { label: 'Remove Node from Editor', description: 'Remove from editor' },
-    position: { x: 350, y: 650 },
+    data: { label: 'Logging', description: 'Track operations' },
+    position: { x: 250, y: 750 },
   },
   {
-    id: 'keep-node',
+    id: 'file-info',
     type: 'action',
-    data: { label: 'Keep Node', description: 'Maintain node' },
-    position: { x: 450, y: 650 },
+    data: { label: 'File Information', description: 'Metadata and URLs' },
+    position: { x: 250, y: 850 },
   },
+  {
+    id: 'security',
+    type: 'action',
+    data: { label: 'Security', description: 'User isolation and access control' },
+    position: { x: 250, y: 950 },
+  }
 ];
 
 const initialEdges = [
-  // Initial Flow
-  { id: 'e1', source: 'start', target: 'init', type: 'smoothstep', animated: true },
-  { id: 'e2', source: 'init', target: 'register', type: 'smoothstep', animated: true },
-
-  // Click Event Flow
-  { id: 'e3', source: 'register', target: 'click-handler', type: 'smoothstep', animated: true },
-  { id: 'e4', source: 'click-handler', target: 'toggle-select', type: 'smoothstep', animated: true, label: 'Single Click' },
-  { id: 'e5', source: 'click-handler', target: 'open-modal', type: 'smoothstep', animated: true, label: 'Double Click' },
-
-  // Modal Events
-  { id: 'e6', source: 'open-modal', target: 'modal-events', type: 'smoothstep', animated: true },
-  { id: 'e7', source: 'modal-events', target: 'save-data', type: 'smoothstep', animated: true, label: 'Save' },
-  { id: 'e8', source: 'modal-events', target: 'delete-node', type: 'smoothstep', animated: true, label: 'Delete' },
-  { id: 'e9', source: 'modal-events', target: 'close-modal', type: 'smoothstep', animated: true, label: 'Close' },
-
-  // Resize Events
-  { id: 'e10', source: 'register', target: 'resize-handler', type: 'smoothstep', animated: true },
-  { id: 'e11', source: 'resize-handler', target: 'start-resize', type: 'smoothstep', animated: true, label: 'Start' },
-  { id: 'e12', source: 'start-resize', target: 'end-resize', type: 'smoothstep', animated: true },
-  { id: 'e13', source: 'end-resize', target: 'update-dimensions', type: 'smoothstep', animated: true },
-
-  // Selection Events
-  { id: 'e14', source: 'toggle-select', target: 'selection-state', type: 'smoothstep', animated: true },
-  { id: 'e15', source: 'selection-state', target: 'show-resizer', type: 'smoothstep', animated: true, label: 'Selected' },
-  { id: 'e16', source: 'selection-state', target: 'hide-resizer', type: 'smoothstep', animated: true, label: 'Not Selected' },
-
-  // Data Flow
-  { id: 'e17', source: 'save-data', target: 'update-editor', type: 'smoothstep', animated: true },
-  { id: 'e18', source: 'delete-node', target: 'remove-node', type: 'smoothstep', animated: true },
-  { id: 'e19', source: 'close-modal', target: 'check-elements', type: 'smoothstep', animated: true },
-  { id: 'e20', source: 'check-elements', target: 'remove-node', type: 'smoothstep', animated: true, label: 'No' },
-  { id: 'e21', source: 'check-elements', target: 'keep-node', type: 'smoothstep', animated: true, label: 'Yes' },
+  // Main flow
+  { id: 'e1', source: 'storage-service', target: 'init', type: 'smoothstep', animated: true },
+  { id: 'e2', source: 'init', target: 'client', type: 'smoothstep', animated: true },
+  
+  // File operations
+  { id: 'e3', source: 'client', target: 'upload', type: 'smoothstep', animated: true },
+  { id: 'e4', source: 'client', target: 'delete', type: 'smoothstep', animated: true },
+  { id: 'e5', source: 'client', target: 'list', type: 'smoothstep', animated: true },
+  { id: 'e6', source: 'client', target: 'metadata', type: 'smoothstep', animated: true },
+  { id: 'e7', source: 'client', target: 'url', type: 'smoothstep', animated: true },
+  
+  // Error handling and logging
+  { id: 'e8', source: 'upload', target: 'error-handling', type: 'smoothstep', animated: true },
+  { id: 'e9', source: 'delete', target: 'error-handling', type: 'smoothstep', animated: true },
+  { id: 'e10', source: 'list', target: 'error-handling', type: 'smoothstep', animated: true },
+  { id: 'e11', source: 'metadata', target: 'error-handling', type: 'smoothstep', animated: true },
+  { id: 'e12', source: 'url', target: 'error-handling', type: 'smoothstep', animated: true },
+  
+  // Logging and information
+  { id: 'e13', source: 'error-handling', target: 'logging', type: 'smoothstep', animated: true },
+  { id: 'e14', source: 'upload', target: 'file-info', type: 'smoothstep', animated: true },
+  { id: 'e15', source: 'metadata', target: 'file-info', type: 'smoothstep', animated: true },
+  
+  // Security
+  { id: 'e16', source: 'upload', target: 'security', type: 'smoothstep', animated: true },
+  { id: 'e17', source: 'delete', target: 'security', type: 'smoothstep', animated: true },
+  { id: 'e18', source: 'list', target: 'security', type: 'smoothstep', animated: true }
 ];
 
 export default function TestFlow() {

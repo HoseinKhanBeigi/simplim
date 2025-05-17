@@ -41,7 +41,8 @@
     "react-pdf": "^7.7.3",
     "reactflow": "^11.11.4",
     "y-websocket": "^1.5.4",
-    "yjs": ">=13.5.42"
+    "yjs": ">=13.5.42",
+    "zustand": "^5.0.4"
   },
   "engines": {
     "node": "20.x"
