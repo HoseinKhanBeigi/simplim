@@ -298,19 +298,28 @@ export default function TestFlow() {
     <ProtectedRoute>
       <AppLayout>
         <div style={{ width: '100vw', height: '100vh' }}>
-          <div className="absolute top-4 right-4 z-10 flex gap-2">
-            <button
-              onClick={() => handleExport('svg')}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Export SVG
-            </button>
-            <button
-              onClick={() => handleExport('png')}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              Export PNG
-            </button>
+          <div className="absolute top-4 left-4 z-10 flex flex-col gap-2 bg-white/90 p-3 rounded-lg shadow-lg">
+            <div className="text-sm font-medium text-gray-700 mb-1">Export Diagram</div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleExport('svg')}
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-blue-500 text-blue-500 rounded-md hover:bg-blue-50 transition-colors duration-200 text-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clipRule="evenodd" />
+                </svg>
+                SVG
+              </button>
+              <button
+                onClick={() => handleExport('png')}
+                className="flex items-center gap-2 px-3 py-2 bg-white border border-green-500 text-green-500 rounded-md hover:bg-green-50 transition-colors duration-200 text-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+                </svg>
+                PNG
+              </button>
+            </div>
           </div>
           <div ref={reactFlowWrapper} style={{ width: '100%', height: '100%' }}>
             <ReactFlow
