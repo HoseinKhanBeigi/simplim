@@ -16,6 +16,10 @@ const useStore = create((set, get) => ({
   zoom: 1,
   isDrawerOpen: false,
 
+  // Layout state
+  leftPanelWidth: 60, // Default width in percentage
+  setLeftPanelWidth: (width) => set({ leftPanelWidth: width }),
+
   // Auth actions
   setUser: (user) => {
     console.log('Setting user in store:', user);

@@ -12,8 +12,10 @@ import ReactFlow, {
   Position,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
-
+import ProtectedRoute from '../components/ProtectedRoute';
+import AppLayout from '../components/AppLayout';
 // Custom Node Components
+
 const EventNode = ({ data }) => (
   <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-blue-400">
     <Handle type="target" position={Position.Top} className="w-3 h-3" />
@@ -157,26 +159,26 @@ const initialEdges = [
   // Main flow
   { id: 'e1', source: 'storage-service', target: 'init', type: 'smoothstep', animated: true },
   { id: 'e2', source: 'init', target: 'client', type: 'smoothstep', animated: true },
-  
+
   // File operations
   { id: 'e3', source: 'client', target: 'upload', type: 'smoothstep', animated: true },
   { id: 'e4', source: 'client', target: 'delete', type: 'smoothstep', animated: true },
   { id: 'e5', source: 'client', target: 'list', type: 'smoothstep', animated: true },
   { id: 'e6', source: 'client', target: 'metadata', type: 'smoothstep', animated: true },
   { id: 'e7', source: 'client', target: 'url', type: 'smoothstep', animated: true },
-  
+
   // Error handling and logging
   { id: 'e8', source: 'upload', target: 'error-handling', type: 'smoothstep', animated: true },
   { id: 'e9', source: 'delete', target: 'error-handling', type: 'smoothstep', animated: true },
   { id: 'e10', source: 'list', target: 'error-handling', type: 'smoothstep', animated: true },
   { id: 'e11', source: 'metadata', target: 'error-handling', type: 'smoothstep', animated: true },
   { id: 'e12', source: 'url', target: 'error-handling', type: 'smoothstep', animated: true },
-  
+
   // Logging and information
   { id: 'e13', source: 'error-handling', target: 'logging', type: 'smoothstep', animated: true },
   { id: 'e14', source: 'upload', target: 'file-info', type: 'smoothstep', animated: true },
   { id: 'e15', source: 'metadata', target: 'file-info', type: 'smoothstep', animated: true },
-  
+
   // Security
   { id: 'e16', source: 'upload', target: 'security', type: 'smoothstep', animated: true },
   { id: 'e17', source: 'delete', target: 'security', type: 'smoothstep', animated: true },
@@ -193,20 +195,24 @@ export default function TestFlow() {
   );
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        nodeTypes={nodeTypes}
-        fitView
-      >
-        <Controls />
-        <MiniMap />
-        <Background variant="dots" gap={12} size={1} />
-      </ReactFlow>
-    </div>
+    <ProtectedRoute>
+      <AppLayout>
+        <div style={{ width: '100vw', height: '100vh' }}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            fitView
+          >
+            <Controls />
+            <MiniMap />
+            <Background variant="dots" gap={12} size={1} />
+          </ReactFlow>
+        </div>
+      </AppLayout>
+    </ProtectedRoute>
   );
 } 

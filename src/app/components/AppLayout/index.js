@@ -2,22 +2,9 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import Header from "../Header";
-import AuthLayout from "../AuthLayout";
 import AIInsightsPanel from "../AIInsightsPanel";
-import ExcalidrawViewer from "../ExcalidrawViewer";
 import { Toaster, toast } from "react-hot-toast";
-import dynamic from "next/dynamic";
-import testData from "../../test-content/test-data.json";
-
-// Dynamically import PlaygroundApp with no SSR
-const PlaygroundApp = dynamic(() => import("../lexical/App"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex justify-center items-center p-4">
-      Loading editor...
-    </div>
-  ),
-});
+import useStore from "../../store/useStore";
 
 const AppLayout = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -33,11 +20,13 @@ const AppLayout = ({ children }) => {
     { content: "Select text to get insights.", source: null },
   ]);
   const [isResizing, setIsResizing] = useState(false);
-  const [leftPanelWidth, setLeftPanelWidth] = useState(60); // percentage
   const [pdfsEdited, setPdfsEdited] = useState(0);
-  const [activeTab, setActiveTab] = useState("viewer"); // 'viewer' or 'draw'
+
   const MAX_FREE_PDFS = 5;
   const [isEditing, setIsEditing] = useState(false);
+
+  // Get layout state from global store
+  const { leftPanelWidth, setLeftPanelWidth } = useStore();
 
   // Handle panel resizing
   const handleMouseDown = useCallback((e) => {
@@ -55,7 +44,7 @@ const AppLayout = ({ children }) => {
         setLeftPanelWidth(newWidth);
       }
     },
-    [isResizing]
+    [isResizing, setLeftPanelWidth]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -277,8 +266,6 @@ const AppLayout = ({ children }) => {
         user={user}
         onLogout={handleLogout}
         onUpgrade={handleUpgrade}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
         onFileUpload={handleFileUpload}
       />
 
@@ -287,7 +274,7 @@ const AppLayout = ({ children }) => {
           className="border-r border-gray-200 bg-white overflow-hidden"
           style={{ width: `${leftPanelWidth}%` }}
         >
-            {children}
+          {children}
         </div>
 
         <div
@@ -295,7 +282,6 @@ const AppLayout = ({ children }) => {
             ${isResizing ? "bg-blue-600" : ""}`}
           onMouseDown={handleMouseDown}
         >
-        
         </div>
 
         <div
@@ -305,10 +291,6 @@ const AppLayout = ({ children }) => {
           <AIInsightsPanel
             selectedText={selectedText}
             insights={insights}
-            // isGuest={user.isGuest}
-            // userRole={user.role}
-            // clarificationsUsed={user.clarificationsUsed}
-            // clarificationsLimit={user.clarificationsLimit}
             onClarify={handleClarification}
             onUpgrade={handleUpgrade}
           />

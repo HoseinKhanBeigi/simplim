@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import mermaid from 'mermaid';
+import ProtectedRoute from '../components/ProtectedRoute';
+import AppLayout from '../components/AppLayout';
 
 export default function TestMermaid() {
   const [diagramCode, setDiagramCode] = useState(`flowchart TD
@@ -120,7 +122,7 @@ export default function TestMermaid() {
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
       const img = new Image();
-      
+
       img.onload = () => {
         canvas.width = img.width;
         canvas.height = img.height;
@@ -131,15 +133,17 @@ export default function TestMermaid() {
         link.download = 'diagram.png';
         link.click();
       };
-      
+
       img.src = 'data:image/svg+xml;base64,' + btoa(new XMLSerializer().serializeToString(svgElement));
     }
   };
 
   return (
-    <div className="flex h-screen">
-      {/* Code Editor */}
-      <div className="w-1/2 p-4 border-r">
+    <ProtectedRoute>
+      <AppLayout>
+        <div className="flex h-screen">
+          {/* Code Editor */}
+          {/* <div className="w-1/2 p-4 border-r">
         <h2 className="text-xl font-bold mb-4">Mermaid Code</h2>
         <textarea
           value={diagramCode}
@@ -147,60 +151,64 @@ export default function TestMermaid() {
           className="w-full h-[calc(100vh-8rem)] p-4 font-mono text-sm border rounded"
           placeholder="Enter Mermaid diagram code..."
         />
-      </div>
+      </div> */}
 
-      {/* Diagram Preview */}
-      <div className="w-1/2 p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Preview</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={handleZoomIn}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Zoom In
-            </button>
-            <button
-              onClick={handleZoomOut}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Zoom Out
-            </button>
-            <button
-              onClick={handleResetZoom}
-              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Reset
-            </button>
-            <button
-              onClick={() => handleDownload('svg')}
-              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              Download SVG
-            </button>
-            <button
-              onClick={() => handleDownload('png')}
-              className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              Download PNG
-            </button>
+          {/* Diagram Preview */}
+          <div className="w-1/2 p-4 w-[100%]">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Preview</h2>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleZoomIn}
+                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Zoom In
+                </button>
+                <button
+                  onClick={handleZoomOut}
+                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Zoom Out
+                </button>
+                <button
+                  onClick={handleResetZoom}
+                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={() => handleDownload('svg')}
+                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                >
+                  Download SVG
+                </button>
+                <button
+                  onClick={() => handleDownload('png')}
+                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+                >
+                  Download PNG
+                </button>
+              </div>
+            </div>
+            <div className="border rounded p-4 h-[calc(100vh-8rem)] overflow-auto">
+              {error ? (
+                <div className="p-4 bg-red-100 text-red-700 rounded">
+                  {error}
+                </div>
+              ) : (
+                <div
+                  ref={diagramRef}
+                  className="mermaid-diagram"
+                  style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}
+                  dangerouslySetInnerHTML={{ __html: svg }}
+                />
+              )}
+            </div>
           </div>
         </div>
-        <div className="border rounded p-4 h-[calc(100vh-8rem)] overflow-auto">
-          {error ? (
-            <div className="p-4 bg-red-100 text-red-700 rounded">
-              {error}
-            </div>
-          ) : (
-            <div 
-              ref={diagramRef}
-              className="mermaid-diagram"
-              style={{ transform: `scale(${scale})`, transformOrigin: 'top left' }}
-              dangerouslySetInnerHTML={{ __html: svg }}
-            />
-          )}
-        </div>
-      </div>
-    </div>
+      </AppLayout>
+    </ProtectedRoute>
+
+
   );
 } 

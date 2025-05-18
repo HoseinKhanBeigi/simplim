@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { useRouter, usePathname } from "next/navigation";
 import useStore from "../../store/useStore";
 
 // Configure worker
@@ -7,16 +8,31 @@ import useStore from "../../store/useStore";
 //   pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 // }
 
-const Header = ({ activeTab, onTabChange }) => {
+const Header = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const fileInputRef = useRef(null);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const { user, logout } = useStore();
- 
 
-  const handleFileClick = () => {
-    fileInputRef.current?.click();
+  // Get the current tab from the pathname
+  const getCurrentTab = () => {
+    const path = pathname.split('/').pop();
+    return path || 'viewer'; // Default to viewer if no path
+  };
+
+  const [activeTab, setActiveTab] = useState(getCurrentTab());
+
+  // Update active tab when route changes
+  useEffect(() => {
+    setActiveTab(getCurrentTab());
+  }, [pathname]);
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+    router.push(`/${tab.toLowerCase()}`);
   };
 
   // const handleFileChange = async (e) => {
@@ -69,33 +85,44 @@ const Header = ({ activeTab, onTabChange }) => {
             <h1 className="text-xl font-bold text-gray-900">simplim</h1>
 
             <div className="flex items-center space-x-2">
+    
               <button
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                   activeTab === "viewer"
                     ? "bg-blue-50 text-blue-600 border border-blue-200"
                     : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
                 }`}
-                onClick={() => onTabChange("viewer")}
+                onClick={() => handleTabClick("viewer")}
               >
                 Viewer
               </button>
               <button
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === "EasyChart"
+                  activeTab === "doceditor"
                     ? "bg-blue-50 text-blue-600 border border-blue-200"
                     : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
                 }`}
-                onClick={() => onTabChange("EasyChart")}
+                onClick={() => handleTabClick("doceditor")}
+              >
+                Doc Editor
+              </button>
+              <button
+                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  activeTab === "easychart"
+                    ? "bg-blue-50 text-blue-600 border border-blue-200"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                }`}
+                onClick={() => handleTabClick("easychart")}
               >
                 EasyChart
               </button>
               <button
                 className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  activeTab === "FlowBuilder"
+                  activeTab === "flowbuilder"
                     ? "bg-blue-50 text-blue-600 border border-blue-200"
                     : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
                 }`}
-                onClick={() => onTabChange("FlowBuilder")}
+                onClick={() => handleTabClick("flowbuilder")}
               >
                 FlowBuilder
               </button>
