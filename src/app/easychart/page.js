@@ -313,52 +313,81 @@ export default function TestMermaid() {
           <div className="w-[100%] p-4">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Preview</h2>
-              <div className="flex gap-2">
-                <select 
-                  onChange={(e) => handleDiagramTypeChange(e.target.value)}
-                  className="px-3 py-1 border rounded"
-                >
-                  <option value="flowchart">Flowchart</option>
-                  <option value="sequence">Sequence</option>
-                  <option value="class">Class</option>
-                  <option value="state">State</option>
-                  <option value="er">Entity Relationship</option>
-                  <option value="pie">Pie Chart</option>
-                  <option value="gantt">Gantt Chart</option>
-                  <option value="mindmap">Mind Map</option>
-                  <option value="journey">Journey</option>
-                  <option value="gitGraph">Git Graph</option>
-                </select>
-                <button
-                  onClick={handleZoomIn}
-                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Zoom In
-                </button>
-                <button
-                  onClick={handleZoomOut}
-                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Zoom Out
-                </button>
-                <button
-                  onClick={handleResetZoom}
-                  className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  Reset
-                </button>
-                <button
-                  onClick={() => handleDownload('svg')}
-                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                >
-                  Download SVG
-                </button>
-                <button
-                  onClick={() => handleDownload('png')}
-                  className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-                >
-                  Download PNG
-                </button>
+              <div className="flex items-center gap-4">
+                {/* Diagram Type Selector */}
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Diagram Type:</label>
+                  <select 
+                    onChange={(e) => handleDiagramTypeChange(e.target.value)}
+                    className="px-3 py-1.5 border border-gray-300 rounded-md bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="flowchart">Flowchart</option>
+                    <option value="sequence">Sequence</option>
+                    <option value="class">Class</option>
+                    <option value="state">State</option>
+                    <option value="er">Entity Relationship</option>
+                    <option value="pie">Pie Chart</option>
+                    <option value="gantt">Gantt Chart</option>
+                    <option value="mindmap">Mind Map</option>
+                    <option value="journey">Journey</option>
+                    <option value="gitGraph">Git Graph</option>
+                  </select>
+                </div>
+
+                {/* Zoom Controls */}
+                <div className="flex items-center gap-2 bg-white/90 p-2 rounded-lg shadow-sm border border-gray-200">
+                  <button
+                    onClick={handleZoomIn}
+                    className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200"
+                    title="Zoom In"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={handleZoomOut}
+                    className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200"
+                    title="Zoom Out"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M5 10a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                  <button
+                    onClick={handleResetZoom}
+                    className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors duration-200"
+                    title="Reset Zoom"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Export Controls */}
+                <div className="flex items-center gap-2 bg-white/90 p-2 rounded-lg shadow-sm border border-gray-200">
+                  <button
+                    onClick={() => handleDownload('svg')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors duration-200"
+                    title="Download SVG"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                    SVG
+                  </button>
+                  <button
+                    onClick={() => handleDownload('png')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-green-600 hover:text-green-700 hover:bg-green-50 rounded-md transition-colors duration-200"
+                    title="Download PNG"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                    PNG
+                  </button>
+                </div>
               </div>
             </div>
             <div className="border rounded p-4 h-[calc(100vh-8rem)] overflow-auto">
