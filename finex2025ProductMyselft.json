@@ -1,0 +1,275 @@
+{
+    
+    "group" : "brokerage",
+    "type" : "e_sign",
+    "relation" : "myself",
+    "org" : "kian_trade",
+    "stages" :[
+  {
+    "name": "FETCHSEJAMDATA",
+    "builtin": "FETCH_SEJAM_WITH_PREVIEW",
+    "label": "دریافت اطلاعات از سجام",
+    "extraConfig": {
+      "description": "اطلاعات شما در سامانه سجام موجود است، برای دریافت اطلاعات از سامانه سجام لطفا روی دکمه زیر کلیک کنید، توجه داشته باشید که شما پس از دریافت اطلاعات امکان ویرایش آنها را خواهید داشت.",
+      "icon": "/static/images/SEJAM.svg",
+      "sendOtpButtonTitle": "دریافت اطلاعات از سجام",
+      "otpModalDescription": "یک پیامک حاوی کد تایید به شماره تلفن ثبت شده شما در سامانه سجام ارسال شد، لطفا کد تایید را وارد کنید",
+      "previewDescription": "اطلاعات ثبت شده شما در سامانه سجام به شرح زیر می‌باشد، لطفا در صورت صحت اطلاعات «ثبت و ادامه» را بزنید.",
+      "actions": {
+        "sendOtp": {
+          "url": "/v1/applications/${url:applicationId}/sejam/fetch/send-otp",
+          "method": "POST",
+          "header": {
+            "Authorization": "bearer ${localStorage:token}",
+            "application-name": "KIAN_TRADE"
+          },
+          "body": {}
+        },
+        "verifyOtp": {
+          "url": "https://api.kiandigital.com/usermgmt/api/v1/sjm/fetchDataFromSejam",
+          "method": "POST",
+          "header": {
+            "Authorization": "bearer ${localStorage:token}",
+            "application-name": "KIAN_TRADE"
+          },
+          "body": {
+            "otp": "${data:otp}",
+            "applicationId": "${url:applicationId}"
+          }
+        },
+        "fetch": {
+          "url": "https://api.kiandigital.com/usermgmt/api/v1/sjm/fetchDataFromSejam/${url:applicationId}",
+          "method": "get",
+          "header": {
+            "Authorization": "bearer ${localStorage:token}",
+            "application-name": "KIAN_TRADE"
+          },
+          "body": {}
+        }
+      }
+    },
+    "submit": {
+      "url": "https://api.kiandigital.com/usermgmt/api/v1/sjm/fetchDataFromSejam/confirm/${url:applicationId}",
+      "method": "POST",
+      "header": {
+        "Authorization": "bearer ${localStorage:token}",
+        "application-name": "KIAN_TRADE"
+      },
+      "body": {
+        "otp": "${data:otp}"
+      }
+    },
+    "groups": [],
+    "map": {
+      "toService": {},
+      "toStore": {}
+    }
+  },
+
+
+  {
+    "name": "ONLINEEXAM",
+    "builtin": "ONLINE_EXAM",
+    "label": "آزمون آنلاین",
+    "extraConfig": {
+      "minScore": 2,
+      "actions": {
+        "getQuestions": {
+          "url": "/v1/configuration/online-exam/questions?count=5",
+          "method": "GET",
+          "header": {
+            "Authorization": "bearer ${localStorage:token}",
+            "App-Name": "KIAN_TRADE"
+          },
+          "body": {}
+        }
+      }
+    },
+    "submit": {
+      "url": "/v1/applications/${url:applicationId}/onlineexam",
+      "method": "PUT",
+      "header": {
+        "Authorization": "bearer ${localStorage:token}",
+        "App-Name": "KIAN_TRADE"
+      },
+      "body": "${data:answers}"
+    },
+    "groups": [],
+    "map": {
+      "toService": {},
+      "toStore": {}
+    }
+  },
+  {
+    "name": "OMSINFO",
+    "builtin": "OMSINFO",
+    "label": "انتخاب سامانه معاملاتی",
+    "submit": {
+      "url": "https://api.kiandigital.com/usermgmt/api/v1/persons/oms-info/${url:applicationId}",
+      "method": "POST",
+      "header": {
+        "Authorization": "bearer ${localStorage:token}",
+        "application-name": "KIAN_TRADE",
+        "mock": true
+      },
+      "body": {
+        "oms": "${data:dataOMS}"
+      }
+    },
+    "groups": [],
+    "map": {
+      "toService": {},
+      "toStore": {}
+    }
+  },
+  {
+    "name": "ESIGN",
+    "builtin": "ESIGN",
+    "label": "امضای الکترونیکی قرارداد",
+    "extraConfig": {
+      "forms": [
+        {
+          "id": 29,
+          "label": "قرارداد استفاده از خدمات عضو جهت انجام معاملات برخط اوراق بهادار - قرارداد آنلاین",
+          "action": {
+            "url": "https://api.kiandigital.com/usermgmt/api/v1/BROKERAGE_ESIGN/form/29/${url:applicationId}/pdf",
+            "method": "GET",
+            "header": {
+              "Authorization": "bearer ${localStorage:token}",
+              "application-name": "KIAN_TRADE"
+            },
+            "body": {}
+          }
+        },
+        {
+          "id": 40,
+          "label": "قرارداد خرید اعتباری",
+          "action": {
+            "url": "https://api.kiandigital.com/usermgmt/api/v1/BROKERAGE_ESIGN/form/40/${url:applicationId}/pdf",
+            "method": "GET",
+            "header": {
+              "Authorization": "bearer ${localStorage:token}",
+              "application-name": "KIAN_TRADE"
+            },
+            "body": {}
+          }
+        },
+        {
+          "id": 28,
+          "label": "قرارداد آفلاین",
+          "action": {
+            "url": "https://api.kiandigital.com/usermgmt/api/v1/BROKERAGE_ESIGN/form/29/${url:applicationId}/pdf",
+            "method": "GET",
+            "header": {
+              "application-name": "KIAN_TRADE"
+            },
+            "body": {}
+          }
+        }
+      ],
+      "actions": {
+                "formList" : {
+                        "url" : "https://api.kiandigital.com/usermgmt/api/v1/KIAN_TRADE/form/BROKERAGE_ESIGN_FINEX/myForm?applicationId=${url:applicationId}",
+                        "method" : "GET",
+                        "header" : {
+                            "Authorization" : "bearer ${localStorage:token}",
+                            "application-name" : "KIAN_TRADE"
+                        },
+                        "body" : {
+
+                        }
+                    },
+                    "form" : {
+                        "url" : "https://api.kiandigital.com/usermgmt/api/v1/KIAN_TRADE/form/${data:formId}/${url:applicationId}/pdf",
+                        "method" : "GET",
+                        "header" : {
+                            "Authorization" : "bearer ${localStorage:token}",
+                            "application-name" : "KIAN_TRADE"
+                        },
+                        "body" : {
+
+                        }
+                    },
+        "sendOtp": {
+          "url": "/v1/applications/${url:applicationId}/esign/send-otp",
+          "method": "POST",
+          "header": {
+            "Authorization": "bearer ${localStorage:token}",
+            "application-name": "KIAN_TRADE"
+          },
+          "body": {}
+        },
+        "getValueLead": {
+          "url": "https://api.kiandigital.com/usermgmt/api/v1/KIAN_TRADE/form/data/map/${url:applicationId}",
+          "method": "GET",
+          "header": {
+            "Authorization": "bearer ${localStorage:token}",
+            "application-name": "KIAN_TRADE",
+            "handlerType": "LEAD_REPORT"
+          },
+          "body": {}
+        },
+        "getSignature": {
+          "url": "https://api.kiandigital.com/glusterproxy/api/v1/file/download?filename=${data:filename}",
+          "method": "GET",
+          "header": {
+            "X-Objects-Token": "${data:token}",
+            "Authorization": "bearer ${localStorage:token}",
+            "Context": "KIAN_TRADE"
+          },
+          "body": {}
+        },
+        "getToken": {
+          "url": "https://api.kiandigital.com/usermgmt/api/v1/documents/signatureToken?applicationId=${url:applicationId}",
+          "method": "GET",
+          "header": {
+            "Authorization": "bearer ${localStorage:token}",
+            "application-name": "KIAN_TRADE"
+          },
+          "body": {}
+        },
+        "upload": {
+          "url": "https://api.kiandigital.com/glusterproxy/api/v1/file/upload",
+          "method": "POST",
+          "header": {
+            "Application-Name": "KIAN_TRADE",
+            "Authorization": "bearer ${localStorage:token}"
+          },
+          "body": {}
+        },
+            "submit" : {
+                        "url" : "https://api.kiandigital.com/usermgmt/api/v1/users/submit?applicationId=${url:applicationId}",
+                        "method" : "PUT",
+                        "header" : {
+                            "Authorization" : "bearer ${localStorage:token}",
+                            "application-name" : "KIAN_TRADE"
+                          
+                        },
+                        "body" : {
+
+                        }
+                    }
+      }
+    },
+    "submit": {
+      "url": "https://api.kiandigital.com/usermgmt/api/v1/esign/verify-and-kyc",
+      "method": "POST",
+      "header": {
+        "Authorization": "bearer ${localStorage:token}",
+        "application-name": "KIAN_TRADE"
+      },
+      "body": {
+        "applicationId": "${url:applicationId}",
+        "otp": "${data:otp}",
+        "contractFiles": "${data:contractFiles}"
+      }
+    },
+    "groups": [],
+    "map": {
+      "toService": {},
+      "toStore": {}
+    }
+  }
+],
+    "name" : "finex2025"
+}

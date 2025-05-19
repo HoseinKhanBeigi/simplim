@@ -17,7 +17,7 @@ const AppLayout = ({ children }) => {
   const [scale, setScale] = useState(1.2);
   const [pdfInstance, setPdfInstance] = useState(null);
   const [insights, setInsights] = useState([
-    { content: "Select text to get insights.", source: null },
+    { content: "", source: null },
   ]);
   const [isResizing, setIsResizing] = useState(false);
   const [pdfsEdited, setPdfsEdited] = useState(0);
@@ -260,7 +260,7 @@ const AppLayout = ({ children }) => {
   // }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-gray-50 overflow-hidden">
       <Toaster position="top-right" />
       <Header
         user={user}
@@ -269,9 +269,9 @@ const AppLayout = ({ children }) => {
         onFileUpload={handleFileUpload}
       />
 
-      <main className="flex-1 flex overflow-hidden relative">
+      <main className="flex-1 flex overflow-hidden">
         <div
-          className="border-r border-gray-200 bg-white overflow-hidden"
+          className="border-r border-gray-200 bg-white overflow-auto"
           style={{ width: `${leftPanelWidth}%` }}
         >
           {children}
