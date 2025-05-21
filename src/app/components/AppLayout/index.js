@@ -21,6 +21,9 @@ const AppLayout = ({ children }) => {
   ]);
   const [isResizing, setIsResizing] = useState(false);
   const [pdfsEdited, setPdfsEdited] = useState(0);
+  const [showAIPanel, setShowAIPanel] = useState(true);
+  const [isRightResizing, setIsRightResizing] = useState(false);
+  const [rightPanelWidth, setRightPanelWidth] = useState(30); // Default width for AI panel
 
   const MAX_FREE_PDFS = 5;
   const [isEditing, setIsEditing] = useState(false);
@@ -255,6 +258,40 @@ const AppLayout = ({ children }) => {
     setIsEditing(!isEditing);
   };
 
+  // Handle right panel resizing
+  const handleRightMouseDown = useCallback((e) => {
+    e.preventDefault();
+    setIsRightResizing(true);
+  }, []);
+
+  const handleRightMouseMove = useCallback(
+    (e) => {
+      if (!isRightResizing) return;
+      const windowWidth = window.innerWidth;
+      const newWidth = ((windowWidth - e.clientX) / windowWidth) * 100;
+      // Limit the resize between 20% and 50%
+      if (newWidth >= 20 && newWidth <= 50) {
+        setRightPanelWidth(newWidth);
+      }
+    },
+    [isRightResizing]
+  );
+
+  const handleRightMouseUp = useCallback(() => {
+    setIsRightResizing(false);
+  }, []);
+
+  useEffect(() => {
+    if (isRightResizing) {
+      window.addEventListener("mousemove", handleRightMouseMove);
+      window.addEventListener("mouseup", handleRightMouseUp);
+    }
+    return () => {
+      window.removeEventListener("mousemove", handleRightMouseMove);
+      window.removeEventListener("mouseup", handleRightMouseUp);
+    };
+  }, [isRightResizing, handleRightMouseMove, handleRightMouseUp]);
+
   // if (!user) {
   //   return <AuthLayout onLogin={handleLogin} onGuestMode={handleGuestMode} />;
   // }
@@ -267,15 +304,12 @@ const AppLayout = ({ children }) => {
         onLogout={handleLogout}
         onUpgrade={handleUpgrade}
         onFileUpload={handleFileUpload}
+        showAIPanel={showAIPanel}
+        onToggleAIPanel={() => setShowAIPanel(!showAIPanel)}
       />
 
       <main className="flex-1 flex overflow-hidden">
-        <div
-          className="border-r border-gray-200 bg-white overflow-auto"
-          style={{ width: `${leftPanelWidth}%` }}
-        >
-          {children}
-        </div>
+    
 
         <div
           className={`w-1 cursor-col-resize bg-transparent hover:bg-blue-500 active:bg-blue-600 transition-colors
@@ -284,16 +318,32 @@ const AppLayout = ({ children }) => {
         >
         </div>
 
-        <div
-          className="bg-white overflow-hidden"
-          style={{ width: `${100 - leftPanelWidth}%` }}
-        >
-          <AIInsightsPanel
-            selectedText={selectedText}
-            insights={insights}
-            onClarify={handleClarification}
-            onUpgrade={handleUpgrade}
-          />
+        <div className="flex-1 flex">
+          <div className="flex-1 bg-white overflow-hidden">
+            {children}
+          </div>
+
+          {showAIPanel && (
+            <>
+              <div
+                className={`w-1 cursor-col-resize bg-transparent hover:bg-blue-500 active:bg-blue-600 transition-colors
+                  ${isRightResizing ? "bg-blue-600" : ""}`}
+                onMouseDown={handleRightMouseDown}
+              >
+              </div>
+              <div
+                className="bg-white overflow-hidden"
+                style={{ width: `${rightPanelWidth}%` }}
+              >
+                <AIInsightsPanel
+                  selectedText={selectedText}
+                  insights={insights}
+                  onClarify={handleClarification}
+                  onUpgrade={handleUpgrade}
+                />
+              </div>
+            </>
+          )}
         </div>
       </main>
     </div>

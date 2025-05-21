@@ -5,7 +5,7 @@ import dynamic from "next/dynamic";
 import ProtectedRoute from "../components/ProtectedRoute";
 import AppLayout from "../components/AppLayout";
 
-// Dynamically import PlaygroundApp with no SSR 
+// Dynamically import PlaygroundApp with no SSR
 const PlaygroundApp = dynamic(() => import("../components/lexical/App"), {
   ssr: false,
   loading: () => (
@@ -17,10 +17,8 @@ const PlaygroundApp = dynamic(() => import("../components/lexical/App"), {
 
 export default function DocEditor() {
   return (
-    <ProtectedRoute>
-      <AppLayout>
-        <PlaygroundApp />
-      </AppLayout>
-    </ProtectedRoute>
+    <AppLayout>
+      <PlaygroundApp />
+    </AppLayout>
   );
 }

@@ -6,10 +6,8 @@ import ProtectedRoute from "../components/ProtectedRoute";
 
 export default function Viewer() {
   return (
-    <ProtectedRoute>
-      <AppLayout>
-        <PDFUploader />
-      </AppLayout>
-    </ProtectedRoute>
+    <AppLayout>
+      <PDFUploader />
+    </AppLayout>
   );
 }
