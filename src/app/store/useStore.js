@@ -15,6 +15,12 @@ const useStore = create((set, get) => ({
   numPages: 0,
   zoom: 1,
   isDrawerOpen: false,
+  
+  // Magic Wand state
+  magicWandEnabled: true,
+  selectionMode: 'magic-wand', // 'magic-wand' or 'manual'
+  selectedText: null,
+  textBlocks: [],
 
   // Layout state
   leftPanelWidth: 60, // Default width in percentage
@@ -82,47 +88,22 @@ const useStore = create((set, get) => ({
   setNumPages: (numPages) => set({ numPages }),
   setZoom: (zoom) => set({ zoom }),
   setDrawerOpen: (isOpen) => set({ isDrawerOpen: isOpen }),
+  setMagicWandEnabled: (enabled) => set({ magicWandEnabled: enabled }),
+  setSelectionMode: (mode) => set({ selectionMode: mode }),
+  setSelectedText: (text) => set({ selectedText: text }),
+  setTextBlocks: (blocks) => set({ textBlocks: blocks }),
 
   uploadFile: async (file) => {
     try {
       set({ isLoading: true, error: null });
-      const token = authService.getToken();
-      if (!token) {
-        throw new Error('Authentication required');
-      }
 
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const test = await fetch('https://simplimback-production.up.railway.app/pdf/test', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      console.log('test', test);
-
-      const response = await fetch('https://simplimback-production.up.railway.app/pdf/upload', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.detail || 'Upload failed');
-      }
-
-      const data = await response.json();
       const fileUrl = URL.createObjectURL(file);
       const newFile = {
         type: 'pdf',
         url: fileUrl,
         name: file.name,
         lastModified: file.lastModified,
-        id: data.id
+        id: Date.now().toString() // Generate a local ID
       };
 
       set((state) => ({
