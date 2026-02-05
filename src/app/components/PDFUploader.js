@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import FileViewer from './PDFViewer';
 import UploadArea from './Upload';
 import PDFDrawer from './PDFDrawer';
@@ -22,6 +22,8 @@ const PDFUploader = () => {
     uploadFile,
     setCurrentFile
   } = useStore();
+  
+  const fileInputRef = useRef(null);
 
   const handleZoomIn = useCallback(() => {
     setZoom(Math.min(zoom + 0.25, 3));
@@ -38,20 +40,36 @@ const PDFUploader = () => {
     // Check file type
     if (selectedFile.type !== 'application/pdf') {
       useStore.getState().setError('Please select a valid PDF file');
+      // Reset input
+      if (event.target) {
+        event.target.value = '';
+      }
       return;
     }
 
     // Check file size (limit to 10MB)
     if (selectedFile.size > 10 * 1024 * 1024) {
       useStore.getState().setError('File size must be less than 10MB');
+      // Reset input
+      if (event.target) {
+        event.target.value = '';
+      }
       return;
     }
 
     try {
       await uploadFile(selectedFile);
+      // Reset input so same file can be selected again
+      if (event.target) {
+        event.target.value = '';
+      }
       return true;
     } catch (err) {
       console.error('File upload error:', err);
+      // Reset input on error
+      if (event.target) {
+        event.target.value = '';
+      }
       return false;
     }
   }, [uploadFile]);
@@ -86,15 +104,32 @@ const PDFUploader = () => {
   const uploadingFile = isLoading ? 'pdf' : null;
   const isPremium = true;
 
+  const handleUploadClick = useCallback(() => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  }, []);
+
   return (
     <div className="flex flex-col items-center">
-      <div className="w-full">
-        <UploadArea
-          handleFileUpload={handleFileUpload}
-          uploadingFile={uploadingFile}
-          isPremium={isPremium}
-        />
-      </div>
+      {!currentFile && (
+        <div className="w-full">
+          <UploadArea
+            handleFileUpload={handleFileUpload}
+            uploadingFile={uploadingFile}
+            isPremium={isPremium}
+          />
+        </div>
+      )}
+      
+      {/* Hidden file input for upload button */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/pdf"
+        className="hidden"
+        onChange={handleFileUpload('pdf')}
+      />
 
       <PDFDrawer
         files={files}
@@ -163,6 +198,16 @@ const PDFUploader = () => {
                 </button>
               </div>
               <div className="h-6 w-px bg-gray-200"></div>
+              <button
+                onClick={handleUploadClick}
+                className="p-2 rounded-md hover:bg-gray-100 transition-colors flex items-center space-x-2"
+                title="Upload PDF"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-600" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm text-gray-600">Upload</span>
+              </button>
               <button
                 onClick={() => setDrawerOpen(true)}
                 className="p-2 rounded-md hover:bg-gray-100 transition-colors flex items-center space-x-2"

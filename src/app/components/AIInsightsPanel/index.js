@@ -187,11 +187,7 @@ const AIInsightsPanel = ({ selectedText, insights, onClarify }) => {
               placeholder={actionConfig.placeholder}
               className="w-full min-h-[60px] max-h-[200px] p-3 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-gray-50 transition-all duration-200 group-hover:border-gray-300"
             />
-            <div className="absolute bottom-2 right-2 text-xs text-gray-400 flex items-center space-x-2">
-              <span className="hidden group-hover:inline transition-opacity duration-200">Press Enter to send</span>
-              <span className="text-gray-300">|</span>
-              <span>Shift + Enter for new line</span>
-            </div>
+         
           </div>
           <div className="flex justify-end">
             <button
