@@ -227,6 +227,7 @@ const PDFUploader = () => {
                 currentPage={currentPage}
                 onLoadSuccess={handleLoadSuccess}
                 onLoadError={handleLoadError}
+                onPageChange={setCurrentPage}
               />
             </div>
           </div>
