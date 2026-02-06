@@ -9,6 +9,7 @@ import useStore from "../../store/useStore";
 const AppLayout = ({ children }) => {
   const [user, setUser] = useState(null);
   const [selectedText, setSelectedText] = useState("");
+  const [selectedTextStack, setSelectedTextStack] = useState([]);
   const [currentFile, setCurrentFile] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [textContent, setTextContent] = useState("");
@@ -21,9 +22,9 @@ const AppLayout = ({ children }) => {
   ]);
   const [isResizing, setIsResizing] = useState(false);
   const [pdfsEdited, setPdfsEdited] = useState(0);
-  const [showAIPanel, setShowAIPanel] = useState(true);
+  const [showAIPanel, setShowAIPanel] = useState(true); // Always show AI panel (like Cursor)
   const [isRightResizing, setIsRightResizing] = useState(false);
-  const [rightPanelWidth, setRightPanelWidth] = useState(30); // Default width for AI panel
+  const [rightPanelWidth, setRightPanelWidth] = useState(35); // Default width for AI panel (more prominent like Cursor)
 
   const MAX_FREE_PDFS = 5;
   const [isEditing, setIsEditing] = useState(false);
@@ -71,14 +72,97 @@ const AppLayout = ({ children }) => {
       const selection = window.getSelection();
       const text = selection.toString().trim();
 
-      // Only update if there's actual text selected
+      // Check if selection is inside an input, textarea, or AI panel
+      const activeElement = document.activeElement;
+      const isInputElement = activeElement && (
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.closest('.ai-insights-panel') ||
+        activeElement.closest('[role="textbox"]')
+      );
+
+      // Ignore selections inside input fields or AI panel
+      if (isInputElement) {
+        return;
+      }
+
+      // Check if selection is inside any input/textarea
+      const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+      if (range) {
+        const container = range.commonAncestorContainer;
+        const isInsideInput = container.nodeType === Node.TEXT_NODE 
+          ? container.parentElement?.closest('input, textarea, [contenteditable="true"]')
+          : container.closest('input, textarea, [contenteditable="true"]');
+        
+        if (isInsideInput) {
+          return;
+        }
+      }
+
+      // Only update if there's actual text selected and it's from PDF
       if (text.length > 10) {
-        setSelectedText(text);
+        // Add to stack instead of replacing
+        setSelectedTextStack(prev => {
+          // Check if this text is already in the stack
+          if (!prev.includes(text)) {
+            const newStack = [...prev, text];
+            // Update the combined selected text
+            setSelectedText(newStack.join('\n\n---\n\n'));
+            return newStack;
+          }
+          return prev;
+        });
       }
     };
 
+    // Handle PDF text selection from simplify button
+    const handlePDFTextSelected = (event) => {
+      const { text, forceAdd } = event.detail;
+      if (text) {
+        // Check if stack/selectedText is empty (user cleared input)
+        setSelectedTextStack(prev => {
+          const isStackEmpty = prev.length === 0 || !selectedText || selectedText.trim().length === 0;
+          
+          if (isStackEmpty) {
+            // Start fresh - replace stack with just this new text
+            setSelectedText(text);
+            return [text];
+          }
+          
+          // If forceAdd is true (from button click), always add to ensure it appears in input
+          // Otherwise check if this text is already in the stack
+          if (forceAdd) {
+            // Always add when button is clicked, even if duplicate
+            const newStack = [...prev, text];
+            // Update the combined selected text
+            setSelectedText(newStack.join('\n\n---\n\n'));
+            return newStack;
+          } else if (!prev.includes(text)) {
+            // Manual selection - only add if not already in stack
+            const newStack = [...prev, text];
+            setSelectedText(newStack.join('\n\n---\n\n'));
+            return newStack;
+          }
+          return prev;
+        });
+      }
+    };
+
+    // Handle clearing the stack when user manually clears input
+    const handleClearStack = () => {
+      setSelectedTextStack([]);
+      setSelectedText("");
+    };
+
     document.addEventListener("mouseup", handleTextSelection);
-    return () => document.removeEventListener("mouseup", handleTextSelection);
+    window.addEventListener("pdfTextSelected", handlePDFTextSelected);
+    window.addEventListener("clearTextStack", handleClearStack);
+    
+    return () => {
+      document.removeEventListener("mouseup", handleTextSelection);
+      window.removeEventListener("pdfTextSelected", handlePDFTextSelected);
+      window.removeEventListener("clearTextStack", handleClearStack);
+    };
   }, [currentPage]);
 
   // Cleanup PDF instance
@@ -122,6 +206,7 @@ const AppLayout = ({ children }) => {
     setUser(null);
     setCurrentFile(null);
     setSelectedText("");
+    setSelectedTextStack([]);
     setTextContent("");
     if (pdfInstance) {
       pdfInstance.cleanup();
@@ -148,6 +233,7 @@ const AppLayout = ({ children }) => {
       setTotalPages(1);
       setScale(1.2);
       setSelectedText("");
+      setSelectedTextStack([]);
 
       // Set new file
       setCurrentFile(fileData);
@@ -216,6 +302,7 @@ const AppLayout = ({ children }) => {
     setCurrentFile(null);
     setTextContent("");
     setSelectedText("");
+    setSelectedTextStack([]);
     if (pdfInstance) {
       pdfInstance.cleanup();
       pdfInstance.destroy();
@@ -319,10 +406,12 @@ const AppLayout = ({ children }) => {
         </div>
 
         <div className="flex-1 flex">
+          {/* Main content area */}
           <div className="flex-1 bg-white overflow-hidden">
             {children}
           </div>
 
+          {/* AI Panel - Persistent across all pages (like Cursor IDE) */}
           {showAIPanel && (
             <>
               <div
@@ -332,8 +421,8 @@ const AppLayout = ({ children }) => {
               >
               </div>
               <div
-                className="bg-white overflow-hidden"
-                style={{ width: `${rightPanelWidth}%` }}
+                className="bg-white overflow-hidden border-l border-gray-200"
+                style={{ width: `${rightPanelWidth}%`, minWidth: '300px' }}
               >
                 <AIInsightsPanel
                   selectedText={selectedText}

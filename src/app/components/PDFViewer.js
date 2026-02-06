@@ -2,6 +2,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from 'next/dynamic';
+import useStore from '../store/useStore';
 import "react-pdf/dist/esm/Page/TextLayer.css";
 import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 
@@ -33,7 +34,8 @@ function FileViewer({
   const containerRef = useRef(null);
   const pdfRef = useRef(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [paragraphs, setParagraphs] = useState([]);
+  const pageTextRef = useRef('');
+  const { setSelectedText } = useStore();
 
   useEffect(() => {
     // Load PDF.js worker only on client side
@@ -45,10 +47,6 @@ function FileViewer({
     }
   }, []);
 
-  // Clear paragraphs when page changes
-  useEffect(() => {
-    setParagraphs([]);
-  }, [currentPage]);
 
   // Handle link clicks using react-pdf's onItemClick
   const handleItemClick = useCallback(async (item) => {
@@ -259,85 +257,13 @@ function FileViewer({
       const formattedText = lines
         .map((line) => line.map((item) => item.text).join(" "))
         .join("\n");
+      
+      // Store page text for the simplify button
+      pageTextRef.current = formattedText;
+      
       if (onTextContentChange) {
         onTextContentChange(formattedText);
       }
-
-      // Group lines into paragraphs (detect larger gaps between lines)
-      const paragraphs = [];
-      let currentParagraph = [];
-      let lastLineY = null;
-      let lastLineHeight = null;
-      const paragraphGapThreshold = 20; // Minimum gap to start a new paragraph (increased)
-      const minParagraphLines = 2; // Minimum lines to consider it a paragraph
-
-      lines.forEach((line, index) => {
-        const lineY = line[0]?.y || 0;
-        const lineHeight = line[0]?.fontSize || 12;
-        const lineText = line.map((item) => item.text).join(" ").trim();
-        
-        if (!lineText) {
-          // Empty line might indicate paragraph break
-          if (currentParagraph.length > 0) {
-            paragraphs.push([...currentParagraph]);
-            currentParagraph = [];
-          }
-          lastLineY = null;
-          return;
-        }
-
-        if (lastLineY === null) {
-          // First line
-          currentParagraph = [line];
-        } else {
-          const gap = lineY - lastLineY;
-          const avgLineHeight = lastLineHeight || lineHeight;
-          
-          // Check if gap is large enough to be a paragraph break
-          // Gap should be at least 1.5x the line height
-          if (gap > (avgLineHeight * 1.5) || gap > paragraphGapThreshold) {
-            // Start a new paragraph
-            if (currentParagraph.length >= minParagraphLines) {
-              paragraphs.push([...currentParagraph]);
-            }
-            currentParagraph = [line];
-          } else {
-            // Continue current paragraph
-            currentParagraph.push(line);
-          }
-        }
-        
-        lastLineY = lineY;
-        lastLineHeight = lineHeight;
-      });
-      
-      // Add the last paragraph if it has enough lines
-      if (currentParagraph.length >= minParagraphLines) {
-        paragraphs.push(currentParagraph);
-      }
-
-      // Extract paragraph info with positions
-      const paragraphData = paragraphs.map((paraLines, index) => {
-        const firstLine = paraLines[0];
-        const topY = firstLine[0]?.y || 0;
-        // Calculate both left and right positions
-        const firstLineItems = firstLine || [];
-        const leftX = Math.min(...firstLineItems.map(item => item.x));
-        const rightX = Math.max(...firstLineItems.map(item => {
-          const itemWidth = (item.text?.length || 0) * (item.fontSize || 10);
-          return item.x + itemWidth;
-        }));
-        
-        return {
-          id: `para-${currentPage}-${index}`,
-          topY: topY,
-          leftX: leftX,
-          rightX: rightX,
-          page: currentPage,
-        };
-      });
-
-      setParagraphs(paragraphData);
 
     } catch (error) {
       console.error("Error getting text content:", error);
@@ -402,35 +328,28 @@ function FileViewer({
           />
         </PDFDocument>
         
-        {/* Paragraph buttons overlay */}
-        {paragraphs.length > 0 && (
-          <div className="absolute inset-0 pointer-events-none" style={{ padding: '1rem' }}>
-            {paragraphs.map((para) => {
-              // Position buttons at the top-right of each paragraph
-              const buttonY = para.topY - 30; // Position above paragraph
-              // Position button aligned with the right edge of the paragraph text
-              const buttonX = para.rightX; // Right side of paragraph
+        {/* Simplify button for the page */}
+        <button
+          className="absolute top-4 right-4 bg-blue-500 hover:bg-blue-600 text-white text-sm px-4 py-2 rounded shadow-lg transition-colors z-10 font-medium"
+          onClick={() => {
+            const pageText = pageTextRef.current;
+            if (pageText) {
+              // Always dispatch event to add to stack, even if input was cleared
+              window.dispatchEvent(new CustomEvent('pdfTextSelected', { 
+                detail: { text: pageText, page: currentPage, forceAdd: true } 
+              }));
               
-              return (
-                <button
-                  key={para.id}
-                  className="pointer-events-auto absolute bg-blue-500 hover:bg-blue-600 text-white text-sm px-3 py-1.5 rounded shadow-md transition-colors z-10 font-medium"
-                  style={{
-                    left: `${buttonX}px`,
-                    top: `${buttonY}px`,
-                    transform: 'translateX(-100%)', // Align button to the right
-                  }}
-                  onClick={() => {
-                    console.log('Simplify me clicked for paragraph:', para.id);
-                    // Add your simplify action here
-                  }}
-                >
-                  simplify me
-                </button>
-              );
-            })}
-          </div>
-        )}
+              // Also copy to clipboard as fallback
+              navigator.clipboard.writeText(pageText).then(() => {
+                console.log('Page text added to stack and copied to clipboard');
+              }).catch(err => {
+                console.error('Failed to copy text:', err);
+              });
+            }
+          }}
+        >
+          simplify me
+        </button>
       </div>
     </div>
   );

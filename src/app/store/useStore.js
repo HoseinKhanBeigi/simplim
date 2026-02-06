@@ -22,6 +22,18 @@ const useStore = create((set, get) => ({
   selectedText: null,
   textBlocks: [],
 
+  // AI Chat state (unified across all pages)
+  aiMessages: [],
+  setAIMessages: (messages) => set({ aiMessages: messages }),
+  addAIMessage: (message) => set((state) => ({ 
+    aiMessages: [...state.aiMessages, message] 
+  })),
+  clearAIMessages: () => set({ aiMessages: [] }),
+  
+  // AI Input text (persists across route changes)
+  aiInputText: '',
+  setAIInputText: (text) => set({ aiInputText: text }),
+
   // Layout state
   leftPanelWidth: 60, // Default width in percentage
   setLeftPanelWidth: (width) => set({ leftPanelWidth: width }),
